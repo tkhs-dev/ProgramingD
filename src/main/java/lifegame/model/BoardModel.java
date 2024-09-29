@@ -1,95 +1,119 @@
 package lifegame.model;
 
 import lifegame.util.BitBoardUtil;
+import lifegame.util.ListUtil;
 
-import static java.lang.Math.ceil;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BoardModel {
-    private final int row;
-    private final int column;
-    private final int rowChunk;
-    private final int columnChunk;
+    private int columnChunk;
+    private int rowChunk;
 
-    private long[][] board;
+    private List<List<Long>> board;
+    private Point startCoord;
 
-    public BoardModel(int row, int column) {
-        this.row = row;
-        this.column = column;
-        this.rowChunk = (int) ceil(row / 8d);
-        this.columnChunk = (int) ceil(column / 8d);
-        this.board = new long[this.row + 2][this.column + 2];
-    }
+    public BoardModel(int columnChunk, int rowChunk) {
+        this.columnChunk = columnChunk;
+        this.rowChunk = rowChunk;
+        this.board = new ArrayList<>();
+        this.startCoord = new Point(0, 0);
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public int getRowChunk() {
-        return rowChunk;
+        for (int i = 0; i < this.columnChunk + 2; i++) {
+            List<Long> r = new ArrayList<>();
+            for (int j = 0; j < this.rowChunk + 2; j++) {
+                r.add(0L);
+            }
+            board.add(r);
+        }
     }
 
     public int getColumnChunk() {
         return columnChunk;
     }
 
-    public long[][] getBoard() {
+    public int getRowChunk() {
+        return rowChunk;
+    }
+
+    public List<List<Long>> getBoard() {
         return board;
     }
 
     public void setState(int x, int y, boolean state) {
-        if(x < 0 || x >= row || y < 0 || y >= column) {
-            throw new IllegalArgumentException("Out of range");
+        if (x < startCoord.x || y < startCoord.y || x > startCoord.x + columnChunk * 8 || y > startCoord.y + rowChunk * 8) {
+            throw new IllegalArgumentException("x and y must be greater than 0");
         }
+
         int i = x / 8 + 1;
         int j = y / 8 + 1;
         int k = x % 8;
         int l = y % 8;
         if (state) {
-            board[i][j] = BitBoardUtil.setOn(board[i][j], k, l);
+            ListUtil.set2D(board, i, j, BitBoardUtil.setOn(ListUtil.get2D(board, i, j), k, l));
         } else {
-            board[i][j] = BitBoardUtil.setOff(board[i][j], k, l);
+            ListUtil.set2D(board, i, j, BitBoardUtil.setOff(ListUtil.get2D(board, i, j), k, l));
         }
     }
 
     public void step() {
-        clip();
-        long[][] nextBoard = new long[rowChunk + 2][columnChunk + 2];
-        for (int i = 1; i <= rowChunk; i++) {
-            for (int j = 1; j <= columnChunk; j++) {
-                long UL = board[i - 1][j - 1];
-                long U = board[i][j - 1];
-                long UR = board[i + 1][j - 1];
-                long L = board[i - 1][j];
-                long R = board[i + 1][j];
-                long DL = board[i - 1][j + 1];
-                long D = board[i][j + 1];
-                long DR = board[i + 1][j + 1];
-                nextBoard[i][j] = nextGenChunk(board[i][j], UL, U, UR, L, R, DL, D, DR);
+        //expand board if necessary
+        if(board.get(1).stream().anyMatch(l -> l!=0)) {
+            List<Long> r = new ArrayList<>();
+            for (int j = 0; j < rowChunk + 2; j++) {
+                r.add(0L);
+            }
+            board.add(0, r);
+            columnChunk++;
+            startCoord.x--;
+        }
+        if(board.get(columnChunk).stream().anyMatch(l -> l!=0)) {
+            List<Long> r = new ArrayList<>();
+            for (int j = 0; j < rowChunk + 2; j++) {
+                r.add(0L);
+            }
+            board.add(r);
+            columnChunk++;
+        }
+        if(board.stream().anyMatch(l -> l.get(1) != 0)) {
+            for (List<Long> l : board) {
+                l.add(0, 0L);
+            }
+            rowChunk++;
+            startCoord.y--;
+        }
+        if(board.stream().anyMatch(l -> l.get(rowChunk) != 0)) {
+            for (List<Long> l : board) {
+                l.add(0L);
+            }
+            rowChunk++;
+        }
+
+        List<List<Long>> nextBoard = new ArrayList<>();
+        for (int i = 0; i < columnChunk + 2; i++) {
+            List<Long> r = new ArrayList<>();
+            for (int j = 0; j < rowChunk + 2; j++) {
+                r.add(0L);
+            }
+            nextBoard.add(r);
+        }
+        for (int i = 1; i <= columnChunk; i++) {
+            for (int j = 1; j <= rowChunk; j++) {
+                long UL = ListUtil.get2D(board, i - 1, j - 1);
+                long U = ListUtil.get2D(board, i, j - 1);
+                long UR = ListUtil.get2D(board, i + 1, j - 1);
+                long L = ListUtil.get2D(board, i - 1, j);
+                long R = ListUtil.get2D(board, i + 1, j);
+                long DL = ListUtil.get2D(board, i - 1, j + 1);
+                long D = ListUtil.get2D(board, i, j + 1);
+                long DR = ListUtil.get2D(board, i + 1, j + 1);
+                long chunk = ListUtil.get2D(board, i, j);
+
+                ListUtil.set2D(nextBoard, i, j, nextGenChunk(chunk, UL, U, UR, L, R, DL, D, DR));
             }
         }
         board = nextBoard;
-    }
-
-    private void clip() {
-        long rMask = 0xFEFEFEFEFEFEFEFEL;
-        long bMask = 0xFFFFFFFFFFFFFF00L;
-
-        for (int j = 0; j < (8 - row % 8) % 8; j++) {
-            for (int i = 1; i <= columnChunk; i++) {
-                board[rowChunk][i] &= rMask;
-            }
-            rMask <<= 1;
-        }
-        for (int i = 0; i < (8 - column % 8) % 8; i++) {
-            for (int j = 1; j <= rowChunk; j++) {
-                board[j][columnChunk] &= bMask;
-            }
-            bMask <<= 8;
-        }
     }
 
     /**
@@ -176,24 +200,17 @@ public class BoardModel {
 
     @Override
     public String toString() {
-        int xCount;
-        int yCount;
-
         StringBuilder sb = new StringBuilder();
 
-        yCount = column;
-        for (int i = 1; i < columnChunk + 1; i++) {
-            for (int j = 0; j < Math.min(yCount, 8); j++) {
-                xCount = row;
-                for (int k = 1; k < rowChunk + 1; k++) {
-                    for (int l = 0; l < Math.min(xCount, 8); l++) {
-                        sb.append(BitBoardUtil.isOn(board[k][i], l, j) ? "O  " : "-  ");
+        for (int i = 1; i < rowChunk + 1; i++) {
+            for (int j = 0; j < 8; j++) {
+                for (int k = 1; k < columnChunk + 1; k++) {
+                    for (int l = 0; l < 8; l++) {
+                        sb.append(BitBoardUtil.isOn(ListUtil.get2D(board,k,i), l, j) ? "O  " : "-  ");
                     }
-                    xCount -= 8;
                 }
                 sb.append("\n");
             }
-            yCount -= 8;
         }
         return sb.toString();
     }
