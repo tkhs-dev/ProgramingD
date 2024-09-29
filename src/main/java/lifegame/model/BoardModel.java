@@ -2,8 +2,8 @@ package lifegame.model;
 
 import lifegame.util.BitBoardUtil;
 import lifegame.util.ListUtil;
+import lifegame.util.Point;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
