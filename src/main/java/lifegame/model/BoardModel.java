@@ -17,16 +17,8 @@ public class BoardModel {
     public BoardModel(int columnChunk, int rowChunk) {
         this.columnChunk = columnChunk;
         this.rowChunk = rowChunk;
-        this.board = new ArrayList<>();
+        this.board = ListUtil.create2DArrayList(rowChunk + 2, columnChunk + 2, 0L);
         this.startCoord = new Point(0, 0);
-
-        for (int i = 0; i < this.columnChunk + 2; i++) {
-            List<Long> r = new ArrayList<>();
-            for (int j = 0; j < this.rowChunk + 2; j++) {
-                r.add(0L);
-            }
-            board.add(r);
-        }
     }
 
     public int getColumnChunk() {
@@ -35,6 +27,10 @@ public class BoardModel {
 
     public int getRowChunk() {
         return rowChunk;
+    }
+
+    public Point getStartCoord() {
+        return startCoord;
     }
 
     public List<List<Long>> getBoard() {
@@ -46,67 +42,64 @@ public class BoardModel {
             throw new IllegalArgumentException("x and y must be greater than 0");
         }
 
-        int i = x / 8 + 1;
-        int j = y / 8 + 1;
+        int chunkX = x / 8 + 1;
+        int chunkY = y / 8 + 1;
         int k = x % 8;
         int l = y % 8;
         if (state) {
-            ListUtil.set2D(board, i, j, BitBoardUtil.setOn(ListUtil.get2D(board, i, j), k, l));
+            ListUtil.set2D(board, chunkY, chunkX, BitBoardUtil.setOn(ListUtil.get2D(board, chunkY, chunkX), k, l));
         } else {
-            ListUtil.set2D(board, i, j, BitBoardUtil.setOff(ListUtil.get2D(board, i, j), k, l));
+            ListUtil.set2D(board, chunkY, chunkX, BitBoardUtil.setOff(ListUtil.get2D(board, chunkY, chunkX), k, l));
         }
     }
 
     public void step() {
         //expand board if necessary
-        if(board.get(1).stream().anyMatch(l -> l!=0)) {
+        if(board.get(1).stream().anyMatch(l -> l!=0)) { //if the first row has a cell
             List<Long> r = new ArrayList<>();
-            for (int j = 0; j < rowChunk + 2; j++) {
+            for (int j = 0; j < columnChunk + 2; j++) {
                 r.add(0L);
             }
             board.add(0, r);
-            columnChunk++;
-            startCoord.x--;
+            rowChunk++;
+            startCoord.y--;
+            System.out.println("expand up");
         }
-        if(board.get(columnChunk).stream().anyMatch(l -> l!=0)) {
+        if(board.get(rowChunk).stream().anyMatch(l -> l!=0)) { //if the last row has a cell
             List<Long> r = new ArrayList<>();
-            for (int j = 0; j < rowChunk + 2; j++) {
+            for (int j = 0; j < columnChunk + 2; j++) {
                 r.add(0L);
             }
             board.add(r);
-            columnChunk++;
+            rowChunk++;
+            System.out.println("expand down");
         }
-        if(board.stream().anyMatch(l -> l.get(1) != 0)) {
+        if(board.stream().anyMatch(l -> l.get(1) != 0)) { //if the first column has a cell
             for (List<Long> l : board) {
                 l.add(0, 0L);
             }
-            rowChunk++;
-            startCoord.y--;
+            columnChunk++;
+            startCoord.x--;
+            System.out.println("expand left");
         }
-        if(board.stream().anyMatch(l -> l.get(rowChunk) != 0)) {
+        if(board.stream().anyMatch(l -> l.get(rowChunk) != 0)) { //if the last column has a cell
             for (List<Long> l : board) {
                 l.add(0L);
             }
-            rowChunk++;
+            columnChunk++;
+            System.out.println("expand right");
         }
 
-        List<List<Long>> nextBoard = new ArrayList<>();
-        for (int i = 0; i < columnChunk + 2; i++) {
-            List<Long> r = new ArrayList<>();
-            for (int j = 0; j < rowChunk + 2; j++) {
-                r.add(0L);
-            }
-            nextBoard.add(r);
-        }
-        for (int i = 1; i <= columnChunk; i++) {
-            for (int j = 1; j <= rowChunk; j++) {
+        List<List<Long>> nextBoard = ListUtil.create2DArrayList(rowChunk + 2, columnChunk + 2, 0L);
+        for (int i = 1; i <= rowChunk; i++) {
+            for (int j = 1; j <= columnChunk; j++) {
                 long UL = ListUtil.get2D(board, i - 1, j - 1);
-                long U = ListUtil.get2D(board, i, j - 1);
-                long UR = ListUtil.get2D(board, i + 1, j - 1);
-                long L = ListUtil.get2D(board, i - 1, j);
-                long R = ListUtil.get2D(board, i + 1, j);
-                long DL = ListUtil.get2D(board, i - 1, j + 1);
-                long D = ListUtil.get2D(board, i, j + 1);
+                long U = ListUtil.get2D(board, i - 1, j);
+                long UR = ListUtil.get2D(board, i - 1, j + 1);
+                long L = ListUtil.get2D(board, i, j - 1);
+                long R = ListUtil.get2D(board, i, j + 1);
+                long DL = ListUtil.get2D(board, i + 1, j - 1);
+                long D = ListUtil.get2D(board, i + 1, j);
                 long DR = ListUtil.get2D(board, i + 1, j + 1);
                 long chunk = ListUtil.get2D(board, i, j);
 
@@ -206,7 +199,7 @@ public class BoardModel {
             for (int j = 0; j < 8; j++) {
                 for (int k = 1; k < columnChunk + 1; k++) {
                     for (int l = 0; l < 8; l++) {
-                        sb.append(BitBoardUtil.isOn(ListUtil.get2D(board,k,i), l, j) ? "O  " : "-  ");
+                        sb.append(BitBoardUtil.isOn(ListUtil.get2D(board,i,k), l, j) ? "O  " : "-  ");
                     }
                 }
                 sb.append("\n");
