@@ -8,4 +8,24 @@ public class Point {
         this.x = x;
         this.y = y;
     }
+
+    public Point add(Point p) {
+        return new Point(this.x + p.x, this.y + p.y);
+    }
+
+    public Point sub(Point p) {
+        return new Point(this.x - p.x, this.y - p.y);
+    }
+
+    public Point mul(int n) {
+        return new Point(this.x * n, this.y * n);
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }
