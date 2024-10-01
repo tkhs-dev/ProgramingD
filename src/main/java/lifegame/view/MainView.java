@@ -7,6 +7,7 @@ import lifegame.model.BoardModel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Random;
 
 public class MainView extends JPanel {
     private BoardView boardView;
@@ -16,18 +17,24 @@ public class MainView extends JPanel {
         super();
 
         model = new BoardModel(1, 1);
-        model.setState(4, 0, true);
-        model.setState(4, 1, true);
-        model.setState(4, 2, true);
-        model.setState(0, 4, true);
-        model.setState(1, 4, true);
-        model.setState(2, 4, true);
-        model.setState(6, 4, true);
-        model.setState(7, 4, true);
-        model.setState(8, 4, true);
-        model.setState(4, 6, true);
-        model.setState(4, 7, true);
-        model.setState(4, 8, true);
+//        model.setState(4, 0, true);
+//        model.setState(4, 1, true);
+//        model.setState(4, 2, true);
+//        model.setState(0, 4, true);
+//        model.setState(1, 4, true);
+//        model.setState(2, 4, true);
+//        model.setState(6, 4, true);
+//        model.setState(7, 4, true);
+//        model.setState(8, 4, true);
+//        model.setState(4, 6, true);
+//        model.setState(4, 7, true);
+//        model.setState(4, 8, true);
+        Random random = new Random();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                model.setState(i, j, random.nextBoolean());
+            }
+        }
 
         initializeUi();
     }
