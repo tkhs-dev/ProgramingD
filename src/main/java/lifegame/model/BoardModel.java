@@ -82,7 +82,7 @@ public class BoardModel {
             startCoord.x--;
             System.out.println("expand left");
         }
-        if(board.stream().anyMatch(l -> l.get(rowChunk) != 0)) { //if the last column has a cell
+        if(board.stream().anyMatch(l -> l.get(columnChunk) != 0)) { //if the last column has a cell
             for (List<Long> l : board) {
                 l.add(0L);
             }
