@@ -68,14 +68,14 @@ public class BoardView extends Canvas {
                 int chunkXStart = j * 8; //the x-coordinate of the chunk
                 int chunkYStart = i * 8; //the y-coordinate of the chunk
                 if (i < 0 || j < 0 || i >= board.board().size() || j >= board.board().get(0).size()) { //if the chunk is out of the board
-                    for (int k = 0; k < 8; k++) {
-                        for (int l = 0; l < 8; l++) {
-                            if(chunkYStart + k >= screenStartCoord.y && chunkYStart + k < screenStartCoord.y + row &&
-                                    chunkXStart + l >= screenStartCoord.x && chunkXStart + l < screenStartCoord.x + column) {
-                                buffer[chunkYStart + k - screenStartCoord.y + 1][chunkXStart + l - screenStartCoord.x + 1] = false; //set the cell to dead if it is in the screen and the chunk is out of the board
-                            }
-                        }
-                    }
+//                    for (int k = 0; k < 8; k++) {
+//                        for (int l = 0; l < 8; l++) {
+//                            if(chunkYStart + k >= screenStartCoord.y && chunkYStart + k < screenStartCoord.y + row &&
+//                                    chunkXStart + l >= screenStartCoord.x && chunkXStart + l < screenStartCoord.x + column) {
+//                                buffer[chunkYStart + k - screenStartCoord.y + 1][chunkXStart + l - screenStartCoord.x + 1] = false; //set the cell to dead if it is in the screen and the chunk is out of the board
+//                            }
+//                        }
+//                    }
                     continue;
                 }
                 long chunk = ListUtil.get2D(board.board(), i, j);
