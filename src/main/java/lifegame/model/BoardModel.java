@@ -161,7 +161,7 @@ public class BoardModel {
 //        BitBoardUtil.print(h);
 
         long xab, xcd, xef, xgh, x, s2, s3;
-        //↓ copied from http://vivi.dyndns.org/tech/games/LifeGame.html
+        //copied from http://vivi.dyndns.org/tech/games/LifeGame.html
         xab = a & b;
         a ^= b;
         xcd = c & d;
