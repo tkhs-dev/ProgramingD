@@ -79,7 +79,6 @@ public class BoardView extends Canvas {
                     continue;
                 }
                 long chunk = ListUtil.get2D(board.board(), i, j);
-                System.out.println("i:"+i+" j:"+j);//i,j
                 for (int k = 0; k < 8; k++) { //k represents the y-coordinate of the cell
                     if(chunkYStart + k < screenStartCoord.y) {
                         chunk <<= 8;
