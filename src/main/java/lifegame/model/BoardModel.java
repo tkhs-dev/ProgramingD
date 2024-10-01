@@ -107,6 +107,7 @@ public class BoardModel {
             }
         }
         board = nextBoard;
+        System.out.println(this);
     }
 
     /**

@@ -67,6 +67,7 @@ public class BoardView extends Canvas {
             for (int j = chunkStart.x; j < chunkEnd.x; j++) {
                 int chunkXStart = j * 8; //the x-coordinate of the chunk
                 int chunkYStart = i * 8; //the y-coordinate of the chunk
+                System.out.println(" y:" + i + " x:" + j);
                 if (i < 0 || j < 0 || i >= board.board().size() || j >= board.board().get(0).size()) { //if the chunk is out of the board
 //                    for (int k = 0; k < 8; k++) {
 //                        for (int l = 0; l < 8; l++) {
