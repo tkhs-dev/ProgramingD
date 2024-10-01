@@ -97,7 +97,7 @@ public class BoardView extends Canvas {
                             chunk <<= 8 - l;
                             break;
                         }
-                        buffer[chunkYStart + k - screenStartCoord.y + 1][chunkXStart + l - screenStartCoord.x + 1] = chunk < 0;
+                        buffer[(i - chunkStart.y)*8 + k][(j - chunkStart.x)*8 + l] = chunk < 0;
                         chunk <<= 1;
                     }
                 }
