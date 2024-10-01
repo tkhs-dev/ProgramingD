@@ -108,23 +108,23 @@ public class BoardView extends Canvas {
     public void paint(Graphics g) {
         super.paint(g);
 
-        IntStream.range(0, row + 1).forEach(i -> {
-            g.setColor(Color.GRAY);
-            g.drawLine(separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + column * (cellSize + separatorWidth), separatorWidth + i * (cellSize + separatorWidth));
-        });
-        IntStream.range(0, column + 1).forEach(i -> {
-            g.setColor(Color.GRAY);
-            g.drawLine(separatorWidth + i * (cellSize + separatorWidth), separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + row * (cellSize + separatorWidth));
-        });
-        IntStream.range(0, row).forEach(i -> {
-            IntStream.range(0, column).forEach(j -> {
+//        for (int i = 0; i < row + 1; i++) {
+//            g.setColor(Color.GRAY);
+//            g.drawLine(separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + column * (cellSize + separatorWidth), separatorWidth + i * (cellSize + separatorWidth));
+//        }
+//        for (int i = 0; i < column + 1; i++) {
+//            g.setColor(Color.GRAY);
+//            g.drawLine(separatorWidth + i * (cellSize + separatorWidth), separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + row * (cellSize + separatorWidth));
+//        }
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < column; j++) {
                 if (buffer[i + 1][j + 1]) {
                     g.setColor(Color.YELLOW);
                 }else{
                     g.setColor(Color.WHITE);
                 }
                 g.fillRect(separatorWidth + j * (cellSize + separatorWidth) + 1, separatorWidth + i * (cellSize + separatorWidth) + 1, cellSize - 1, cellSize - 1);
-            });
-        });
+            }
+        }
     }
 }
