@@ -6,7 +6,6 @@ import lifegame.util.Point;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.stream.IntStream;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
@@ -58,17 +57,15 @@ public class BoardView extends Canvas {
     }
 
     private void loadToBuffer() {
-        Point chunkStart = screenStartCoord.sub(board.startChunkCoord().mul(8));
-        chunkStart.x = (int)floor(chunkStart.x/8d);
-        chunkStart.y = (int)floor(chunkStart.y/8d);
+        Point chunkStart = new Point((int)floor(screenStartCoord.x/8d), (int)floor(screenStartCoord.y/8d));
         Point chunkEnd = chunkStart.add(new Point((int)ceil(column/8d), (int)ceil(row/8d)));
+        Point offset = board.startChunkCoord();
 
         for (int i = chunkStart.y; i < chunkEnd.y; i++) {
             for (int j = chunkStart.x; j < chunkEnd.x; j++) {
                 int chunkXStart = j * 8; //the x-coordinate of the chunk
                 int chunkYStart = i * 8; //the y-coordinate of the chunk
-                System.out.println(" y:" + i + " x:" + j);
-                if (i < 0 || j < 0 || i >= board.board().size() || j >= board.board().get(0).size()) { //if the chunk is out of the board
+                if (i - offset.y < 0 || j - offset.x < 0 || i - offset.y >= board.board().size() || j - offset.x >= board.board().get(0).size()) { //if the chunk is out of the board
 //                    for (int k = 0; k < 8; k++) {
 //                        for (int l = 0; l < 8; l++) {
 //                            if(chunkYStart + k >= screenStartCoord.y && chunkYStart + k < screenStartCoord.y + row &&
@@ -79,7 +76,7 @@ public class BoardView extends Canvas {
 //                    }
                     continue;
                 }
-                long chunk = ListUtil.get2D(board.board(), i, j);
+                long chunk = ListUtil.get2D(board.board(), i - offset.y, j - offset.x);
                 for (int k = 0; k < 8; k++) { //k represents the y-coordinate of the cell
                     if(chunkYStart + k < screenStartCoord.y) {
                         chunk <<= 8;
@@ -93,7 +90,7 @@ public class BoardView extends Canvas {
                             chunk <<= 1;
                             continue;
                         }
-                        if(chunkXStart + l >= screenStartCoord.x + column) {
+                        if(chunkXStart + l > screenStartCoord.x + column) {
                             chunk <<= 8 - l;
                             break;
                         }
