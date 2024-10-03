@@ -60,9 +60,8 @@ public class BoardView extends Canvas {
         Point chunkStart = new Point((int)floor(screenStartCoord.x/8d), (int)floor(screenStartCoord.y/8d));
         Point chunkEnd = chunkStart.add(new Point((int)ceil(column/8d), (int)ceil(row/8d)));
         Point offset = board.startChunkCoord();
-
-        for (int i = chunkStart.y; i < chunkEnd.y; i++) {
-            for (int j = chunkStart.x; j < chunkEnd.x; j++) {
+        for (int i = chunkStart.y; i <= chunkEnd.y; i++) {
+            for (int j = chunkStart.x; j <= chunkEnd.x; j++) {
                 int chunkXStart = j * 8; //the x-coordinate of the chunk
                 int chunkYStart = i * 8; //the y-coordinate of the chunk
                 if (i - offset.y < 0 || j - offset.x < 0 || i - offset.y >= board.board().size() || j - offset.x >= board.board().get(0).size()) { //if the chunk is out of the board
@@ -82,7 +81,7 @@ public class BoardView extends Canvas {
                         chunk <<= 8;
                         continue;
                     }
-                    if(chunkYStart + k >= screenStartCoord.y + row) {
+                    if(chunkYStart + k > screenStartCoord.y + row) {
                         break;
                     }
                     for (int l = 0; l < 8; l++) { //l represents the x-coordinate of the cell
@@ -94,7 +93,7 @@ public class BoardView extends Canvas {
                             chunk <<= 8 - l;
                             break;
                         }
-                        buffer[(i - chunkStart.y)*8 + k][(j - chunkStart.x)*8 + l] = chunk < 0;
+                        buffer[chunkYStart + k - screenStartCoord.y][chunkXStart + l - screenStartCoord.x] = chunk < 0;
                         chunk <<= 1;
                     }
                 }
