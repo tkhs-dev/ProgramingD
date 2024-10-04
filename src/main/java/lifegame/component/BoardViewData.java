@@ -18,4 +18,8 @@ public record BoardViewData(List<List<Long>> board, Point startChunkCoord) {
             throw new IllegalArgumentException("startCoord must not be null");
         }
     }
+
+    public static BoardViewData createEmpty() {
+        return new BoardViewData(List.of(List.of(0L)), new Point(0, 0));
+    }
 }

@@ -14,7 +14,7 @@ public class BoardView extends Canvas {
     private int row;
     private int column;
     private final int separatorWidth;
-    private final int cellSize;
+    private int cellSize;
 
     private BoardViewData board;
     private boolean[][] buffer;
@@ -29,10 +29,7 @@ public class BoardView extends Canvas {
         this.board = new BoardViewData(ListUtil.create2DArrayList(1, 1, 0L), new Point(0, 0));
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
-                row = (int) floor((double) (getHeight() - separatorWidth) / (cellSize + separatorWidth));
-                column = (int) floor((double) (getWidth() - separatorWidth) / (cellSize + separatorWidth));
-                buffer = new boolean[row+2][column+2];
-                loadToBuffer();
+                updateBoardSize();
                 repaint();
             }
         });
@@ -50,10 +47,23 @@ public class BoardView extends Canvas {
         return column;
     }
 
+    public void setCellSize(int cellSize) {
+        this.cellSize = cellSize;
+        updateBoardSize();
+        loadToBuffer();
+        repaint();
+    }
+
     public void updateBoard(BoardViewData board) {
         this.board = board;
         loadToBuffer();
         repaint();
+    }
+
+    private void updateBoardSize() {
+        row = (int) floor((double) (getHeight() - separatorWidth) / (cellSize + separatorWidth));
+        column = (int) floor((double) (getWidth() - separatorWidth) / (cellSize + separatorWidth));
+        buffer = new boolean[row+2][column+2];
     }
 
     private void loadToBuffer() {
