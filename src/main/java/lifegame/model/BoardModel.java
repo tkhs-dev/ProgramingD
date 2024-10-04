@@ -6,6 +6,7 @@ import lifegame.util.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BoardModel {
     private int columnChunk;
@@ -50,6 +51,15 @@ public class BoardModel {
             ListUtil.set2D(board, chunkY, chunkX, BitBoardUtil.setOn(ListUtil.get2D(board, chunkY, chunkX), k, l));
         } else {
             ListUtil.set2D(board, chunkY, chunkX, BitBoardUtil.setOff(ListUtil.get2D(board, chunkY, chunkX), k, l));
+        }
+    }
+
+    public void randomize() {
+        Random random = new Random();
+        for (int i = 1; i <= rowChunk; i++) {
+            for (int j = 1; j <= columnChunk; j++) {
+                ListUtil.set2D(board, i, j, random.nextLong());
+            }
         }
     }
 
