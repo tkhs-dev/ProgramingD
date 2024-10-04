@@ -1,8 +1,9 @@
-package lifegame.view;
+package lifegame.view.main;
 
 import lifegame.component.BoardView;
 import lifegame.component.BoardViewData;
 import lifegame.model.BoardModel;
+import lifegame.util.Binding;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,9 +14,12 @@ public class MainView extends JPanel {
     private BoardView boardView;
     private BoardModel model;
 
-    public MainView() {
+    private MainViewModel viewModel;
+
+    public MainView(MainViewModel viewModel) {
         super();
 
+        this.viewModel = viewModel;
         model = new BoardModel(1, 1);
 //        model.setState(4, 0, true);
 //        model.setState(4, 1, true);
@@ -48,14 +52,18 @@ public class MainView extends JPanel {
         viewSettingPanel.setBorder(new EmptyBorder(10, 25, 10, 25));
         viewSettingPanel.setBackground(Color.LIGHT_GRAY);
         viewSettingPanel.setLayout(new GridLayout(2, 1));
+        JSlider scaleSlider = new JSlider(1, 100, 10);
+        scaleSlider.addChangeListener(e -> viewModel.onScaleChange(scaleSlider.getValue()));
         viewSettingPanel.add(new JLabel("View Setting"));
-        viewSettingPanel.add(new JButton("Scale"));
+        viewSettingPanel.add(scaleSlider);
         viewSettingPanel.setPreferredSize(new Dimension(180, 100));
         springLayout.putConstraint(SpringLayout.SOUTH, viewSettingPanel, -30, SpringLayout.SOUTH, gamePanel);
         springLayout.putConstraint(SpringLayout.EAST, viewSettingPanel, -30, SpringLayout.EAST, gamePanel);
         gamePanel.add(viewSettingPanel);
 
         boardView = new BoardView(15);
+        Binding.bindSetter(viewModel.scale, boardView::setCellSize);
+        Binding.bindSetter(viewModel.board, boardView::updateBoard);
         springLayout.putConstraint(SpringLayout.NORTH, boardView, 10, SpringLayout.NORTH, gamePanel);
         springLayout.putConstraint(SpringLayout.WEST, boardView, 10, SpringLayout.WEST, gamePanel);
         springLayout.putConstraint(SpringLayout.SOUTH, boardView, 0, SpringLayout.SOUTH, gamePanel);
@@ -72,22 +80,22 @@ public class MainView extends JPanel {
         controlPanel.setLayout(new GridLayout(1, 5, 20, 0));
         controlPanel.setBorder(new EmptyBorder(0, 25, 10, 25));
         JButton startButton = new JButton("Start");
-        JButton stopButton = new JButton("Stop");
-        JButton stepButton = new JButton("Step");
+        JButton stepButton = new JButton("Next");
+        JButton undoButton = new JButton("Undo");
         JButton resetButton = new JButton("Reset");
-        JButton quitButton = new JButton("Quit");
-        startButton.addActionListener(e -> {
-            boardView.updateBoard(new BoardViewData(model.getBoard(), model.getStartCoord()));
-        });
-        stepButton.addActionListener(e -> {
-            model.step();
-            boardView.updateBoard(new BoardViewData(model.getBoard(), model.getStartCoord()));
-        });
+        JButton newGameButton = new JButton("NewGame");
+        Binding.bindSetter(viewModel.isRunning, b ->{startButton.setText(b ? "Stop" : "Start");});
+        Binding.bindSetter(viewModel.undoEnabled, undoButton::setEnabled);
+        startButton.addActionListener(e -> viewModel.onStartClick());
+        stepButton.addActionListener(e -> viewModel.onStepClick());
+        undoButton.addActionListener(e -> viewModel.onUndoClick());
+        resetButton.addActionListener(e -> viewModel.onResetClick());
+        newGameButton.addActionListener(e -> viewModel.onNewGameClick());
         controlPanel.add(startButton);
-        controlPanel.add(stopButton);
         controlPanel.add(stepButton);
+        controlPanel.add(undoButton);
         controlPanel.add(resetButton);
-        controlPanel.add(quitButton);
+        controlPanel.add(newGameButton);
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         this.setLayout(gridBagLayout);
