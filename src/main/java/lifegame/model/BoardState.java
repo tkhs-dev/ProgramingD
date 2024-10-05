@@ -16,7 +16,7 @@ public class BoardState {
     private Point startCoord;
 
     public BoardState() {
-        this(1, 1, ListUtil.create2DArrayList(3, 3, 0L), new Point(0, 0));
+        this(1, 1, ListUtil.create2DArrayList(3, 3, 0L), new Point(-1, -1));
     }
 
     private BoardState(int columnChunk, int rowChunk, List<List<Long>> board, Point startCoord) {

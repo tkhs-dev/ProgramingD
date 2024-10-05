@@ -68,7 +68,7 @@ public class BoardView extends JPanel {
     }
 
     private void loadToBuffer() {
-        Point chunkStart = new Point((int)floor(screenStartCoord.x/8d), (int)floor(screenStartCoord.y/8d));
+        Point chunkStart = new Point((int)floor((screenStartCoord.x - 1)/8d), (int)floor((screenStartCoord.y - 1)/8d));
         Point chunkEnd = chunkStart.add(new Point((int)ceil(column/8d), (int)ceil(row/8d)));
         Point offset = board.startChunkCoord();
         for (int i = chunkStart.y; i <= chunkEnd.y; i++) {
@@ -88,23 +88,23 @@ public class BoardView extends JPanel {
                 }
                 long chunk = ListUtil.get2D(board.board(), i - offset.y, j - offset.x);
                 for (int k = 0; k < 8; k++) { //k represents the y-coordinate of the cell
-                    if(chunkYStart + k < screenStartCoord.y) {
+                    if(chunkYStart + k < screenStartCoord.y - 1) {
                         chunk <<= 8;
                         continue;
                     }
-                    if(chunkYStart + k > screenStartCoord.y + row) {
+                    if(chunkYStart + k > screenStartCoord.y + row + 1) {
                         break;
                     }
                     for (int l = 0; l < 8; l++) { //l represents the x-coordinate of the cell
-                        if(chunkXStart + l < screenStartCoord.x) {
+                        if(chunkXStart + l < screenStartCoord.x - 1) {
                             chunk <<= 1;
                             continue;
                         }
-                        if(chunkXStart + l > screenStartCoord.x + column) {
+                        if(chunkXStart + l > screenStartCoord.x + column + 1) {
                             chunk <<= 8 - l;
                             break;
                         }
-                        buffer[chunkYStart + k - screenStartCoord.y][chunkXStart + l - screenStartCoord.x] = chunk < 0;
+                        buffer[chunkYStart + k - screenStartCoord.y + 1][chunkXStart + l - screenStartCoord.x + 1] = chunk < 0;
                         chunk <<= 1;
                     }
                 }
