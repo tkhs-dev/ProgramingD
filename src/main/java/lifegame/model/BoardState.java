@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class BoardState {
+import static java.lang.Math.floor;
+
+public class BoardState implements Cloneable {
     private int columnChunk;
     private int rowChunk;
 
@@ -42,15 +44,11 @@ public class BoardState {
         return board;
     }
 
-    public void setState(int x, int y, boolean state) {
-        if (x < startCoord.x || y < startCoord.y || x > startCoord.x + columnChunk * 8 || y > startCoord.y + rowChunk * 8) {
-            throw new IllegalArgumentException("x and y must be greater than 0");
-        }
-
-        int chunkX = x / 8 + 1;
-        int chunkY = y / 8 + 1;
-        int k = x % 8;
-        int l = y % 8;
+    public void changeCellState(int x, int y, boolean state) {
+        int chunkX = (int)floor((x - startCoord.x * 8) / 8d);
+        int chunkY = (int)floor((y - startCoord.y * 8) / 8d);
+        int k = (x - startCoord.x * 8) % 8;
+        int l = (y - startCoord.y * 8) % 8;
         if (state) {
             ListUtil.set2D(board, chunkY, chunkX, BitBoardUtil.setOn(ListUtil.get2D(board, chunkY, chunkX), k, l));
         } else {
@@ -67,7 +65,7 @@ public class BoardState {
         }
     }
 
-    public BoardState getNextState() {
+    public void nextState() {
         //expand board if necessary
         if(board.get(1).stream().anyMatch(l -> l!=0)) { //if the first row has a cell
             List<Long> r = new ArrayList<>();
@@ -120,7 +118,7 @@ public class BoardState {
                 ListUtil.set2D(nextBoard, i, j, nextGenChunk(chunk, UL, U, UR, L, R, DL, D, DR));
             }
         }
-        return new BoardState(columnChunk, rowChunk, nextBoard, startCoord);
+        board = nextBoard;
     }
 
     /**
@@ -220,5 +218,16 @@ public class BoardState {
             }
         }
         return sb.toString();
+    }
+
+    @Override
+    public BoardState clone() {
+        List<List<Long>> newBoard = new ArrayList<>();
+        for (List<Long> l : board) {
+            List<Long> newL = new ArrayList<>(l);
+            newL.addAll(l);
+            newBoard.add(newL);
+        }
+        return new BoardState(columnChunk, rowChunk, newBoard, startCoord);
     }
 }

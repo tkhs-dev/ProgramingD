@@ -22,11 +22,16 @@ public class GameModel {
 
     public void step(){
         addHistory();
-        boardState = boardState.getNextState();
+        boardState.nextState();
+    }
+
+    public void changeCellState(int x, int y, boolean state){
+        addHistory();
+        boardState.changeCellState(x, y, state);
     }
 
     private void addHistory(){
-        historyStack.push(boardState);
+        historyStack.push(boardState.clone());
         if(historyStack.size() > historySize){
             historyStack.pollLast();
         }

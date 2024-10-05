@@ -2,6 +2,7 @@ package lifegame.view.main;
 
 import lifegame.component.BoardViewData;
 import lifegame.model.GameModel;
+import lifegame.util.Point;
 import lifegame.util.State;
 
 public class MainViewModel {
@@ -42,5 +43,12 @@ public class MainViewModel {
 
     public void onNewGameClick() {
 
+    }
+
+    public void onBoardChange(Point coord, boolean newState) {
+        System.out.println("onBoardChange: "+coord.x+" "+coord.y+" "+newState);
+        gameModel.changeCellState(coord.x, coord.y, newState);
+        undoEnabled.setValue(gameModel.isUndoEnabled());
+        board.setValue(new BoardViewData(gameModel.getBoardState().getBoard(), gameModel.getBoardState().getStartCoord()));
     }
 }

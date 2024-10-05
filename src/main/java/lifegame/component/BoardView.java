@@ -1,17 +1,17 @@
 package lifegame.component;
 
+import lifegame.util.Event;
 import lifegame.util.ListUtil;
 import lifegame.util.Point;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
 
-public class BoardView extends JPanel {
+public class BoardView extends JPanel implements MouseMotionListener, MouseListener {
     private int row;
     private int column;
     private final int separatorWidth;
@@ -22,8 +22,13 @@ public class BoardView extends JPanel {
 
     private Point screenStartCoord;
 
+    private lifegame.util.Event<BoardChangeEvent> _boardChangeEvent = new lifegame.util.Event<>();
+    public final Event.Observable<BoardChangeEvent> boardChangeEvent;
+
     public BoardView(int cellSize, int separatorWidth) {
         super();
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
         this.cellSize = cellSize;
         this.separatorWidth = separatorWidth;
         this.screenStartCoord = new Point(0, 0);
@@ -34,6 +39,7 @@ public class BoardView extends JPanel {
                 loadToBuffer();
             }
         });
+        boardChangeEvent = _boardChangeEvent.getObservable();
     }
 
     public BoardView(int cellSize) {
@@ -133,5 +139,45 @@ public class BoardView extends JPanel {
                 g.fillRect(separatorWidth + j * (cellSize + separatorWidth) + 1, separatorWidth + i * (cellSize + separatorWidth) + 1, cellSize - 1, cellSize - 1);
             }
         }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        int x = (int) floor((double) (e.getX() - separatorWidth) / (cellSize + separatorWidth));
+        int y = (int) floor((double) (e.getY() - separatorWidth) / (cellSize + separatorWidth));
+        if (x < 0 || x >= column || y < 0 || y >= row) {
+            return;
+        }
+        _boardChangeEvent.notify(new BoardChangeEvent(new Point(x + screenStartCoord.x, y + screenStartCoord.y), !buffer[y + 1][x + 1]));
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }
