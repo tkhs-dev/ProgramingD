@@ -11,7 +11,6 @@ import java.awt.*;
 import java.util.Random;
 
 public class MainView extends JPanel {
-    private BoardView boardView;
     private BoardModel model;
 
     private MainViewModel viewModel;
@@ -20,58 +19,36 @@ public class MainView extends JPanel {
         super();
 
         this.viewModel = viewModel;
-        model = new BoardModel(1, 1);
-//        model.setState(4, 0, true);
-//        model.setState(4, 1, true);
-//        model.setState(4, 2, true);
-//        model.setState(0, 4, true);
-//        model.setState(1, 4, true);
-//        model.setState(2, 4, true);
-//        model.setState(6, 4, true);
-//        model.setState(7, 4, true);
-//        model.setState(8, 4, true);
-//        model.setState(4, 6, true);
-//        model.setState(4, 7, true);
-//        model.setState(4, 8, true);
-        Random random = new Random();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                model.setState(i, j, random.nextBoolean());
-            }
-        }
-
         initializeUi();
     }
 
     private void initializeUi() {
         JPanel gamePanel = new JPanel();
+        gamePanel.setLayout(new BorderLayout());
+        gamePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        BoardView boardView = new BoardView(15);
         SpringLayout springLayout = new SpringLayout();
-        gamePanel.setLayout(springLayout);
+        boardView.setLayout(springLayout);
+        Binding.bindSetter(viewModel.scale, boardView::setCellSize);
+        Binding.bindSetter(viewModel.board, boardView::updateBoard);
 
         JPanel viewSettingPanel = new JPanel();
         viewSettingPanel.setBorder(new EmptyBorder(10, 25, 10, 25));
         viewSettingPanel.setBackground(Color.LIGHT_GRAY);
         viewSettingPanel.setLayout(new GridLayout(2, 1));
-        JSlider scaleSlider = new JSlider(1, 100, 10);
+        JSlider scaleSlider = new JSlider(3, 100, 10);
         scaleSlider.addChangeListener(e -> viewModel.onScaleChange(scaleSlider.getValue()));
         viewSettingPanel.add(new JLabel("View Setting"));
         viewSettingPanel.add(scaleSlider);
         viewSettingPanel.setPreferredSize(new Dimension(180, 100));
-        springLayout.putConstraint(SpringLayout.SOUTH, viewSettingPanel, -30, SpringLayout.SOUTH, gamePanel);
-        springLayout.putConstraint(SpringLayout.EAST, viewSettingPanel, -30, SpringLayout.EAST, gamePanel);
-        gamePanel.add(viewSettingPanel);
 
-        boardView = new BoardView(15);
-        Binding.bindSetter(viewModel.scale, boardView::setCellSize);
-        Binding.bindSetter(viewModel.board, boardView::updateBoard);
-        springLayout.putConstraint(SpringLayout.NORTH, boardView, 10, SpringLayout.NORTH, gamePanel);
-        springLayout.putConstraint(SpringLayout.WEST, boardView, 10, SpringLayout.WEST, gamePanel);
-        springLayout.putConstraint(SpringLayout.SOUTH, boardView, 0, SpringLayout.SOUTH, gamePanel);
-        springLayout.putConstraint(SpringLayout.EAST, boardView, 0, SpringLayout.EAST, gamePanel);
-        gamePanel.add(boardView);
+        springLayout.putConstraint(SpringLayout.SOUTH, viewSettingPanel, -30, SpringLayout.SOUTH, boardView);
+        springLayout.putConstraint(SpringLayout.EAST, viewSettingPanel, -30, SpringLayout.EAST, boardView);
 
-        gamePanel.setComponentZOrder(viewSettingPanel, 0);
-        gamePanel.setComponentZOrder(boardView, 1);
+        boardView.add(viewSettingPanel);
+        gamePanel.add(boardView, BorderLayout.CENTER);
+
         gamePanel.revalidate();
         gamePanel.repaint();
 

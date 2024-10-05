@@ -17,7 +17,6 @@ public class MainViewModel {
     }
 
     public void onScaleChange(Integer scale) {
-        System.out.println("Scale changed to " + scale);
         this.scale.setValue(scale);
     }
 
@@ -31,6 +30,7 @@ public class MainViewModel {
 
     public void onStepClick() {
         boardModel.step();
+        board.setValue(new BoardViewData(boardModel.getBoard(), boardModel.getStartCoord()));
     }
 
     public void onResetClick() {

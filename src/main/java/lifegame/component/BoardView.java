@@ -3,6 +3,7 @@ package lifegame.component;
 import lifegame.util.ListUtil;
 import lifegame.util.Point;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -10,7 +11,7 @@ import java.awt.event.ComponentEvent;
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
 
-public class BoardView extends Canvas {
+public class BoardView extends JPanel {
     private int row;
     private int column;
     private final int separatorWidth;
@@ -30,7 +31,7 @@ public class BoardView extends Canvas {
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 updateBoardSize();
-                repaint();
+                loadToBuffer();
             }
         });
     }
@@ -112,9 +113,8 @@ public class BoardView extends Canvas {
     }
 
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 //        for (int i = 0; i < row + 1; i++) {
 //            g.setColor(Color.GRAY);
 //            g.drawLine(separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + column * (cellSize + separatorWidth), separatorWidth + i * (cellSize + separatorWidth));
