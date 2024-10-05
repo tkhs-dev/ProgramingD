@@ -1,18 +1,13 @@
 package lifegame.view.main;
 
 import lifegame.component.BoardView;
-import lifegame.component.BoardViewData;
-import lifegame.model.BoardModel;
 import lifegame.util.Binding;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.Random;
 
 public class MainView extends JPanel {
-    private BoardModel model;
-
     private MainViewModel viewModel;
 
     public MainView(MainViewModel viewModel) {

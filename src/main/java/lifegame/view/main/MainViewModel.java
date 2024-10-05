@@ -1,19 +1,19 @@
 package lifegame.view.main;
 
 import lifegame.component.BoardViewData;
-import lifegame.model.BoardModel;
+import lifegame.model.GameModel;
 import lifegame.util.State;
 
 public class MainViewModel {
-    BoardModel boardModel;
+    GameModel gameModel;
     State<Integer> scale = new State<>(10);
     State<Boolean> undoEnabled = new State<>(false);
     State<Boolean> isRunning = new State<>(false);
     State<BoardViewData> board = new State<>(BoardViewData.createEmpty());
 
-    public MainViewModel(BoardModel boardModel) {
-        this.boardModel = boardModel;
-        boardModel.randomize();
+    public MainViewModel(GameModel gameModel) {
+        this.gameModel = gameModel;
+        undoEnabled.setValue(gameModel.isUndoEnabled());
     }
 
     public void onScaleChange(Integer scale) {
@@ -25,12 +25,15 @@ public class MainViewModel {
     }
 
     public void onUndoClick() {
-
+        gameModel.undo();
+        undoEnabled.setValue(gameModel.isUndoEnabled());
+        board.setValue(new BoardViewData(gameModel.getBoardState().getBoard(), gameModel.getBoardState().getStartCoord()));
     }
 
     public void onStepClick() {
-        boardModel.step();
-        board.setValue(new BoardViewData(boardModel.getBoard(), boardModel.getStartCoord()));
+        gameModel.step();
+        undoEnabled.setValue(gameModel.isUndoEnabled());
+        board.setValue(new BoardViewData(gameModel.getBoardState().getBoard(), gameModel.getBoardState().getStartCoord()));
     }
 
     public void onResetClick() {

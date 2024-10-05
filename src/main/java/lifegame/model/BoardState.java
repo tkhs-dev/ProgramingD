@@ -8,18 +8,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class BoardModel {
+public class BoardState {
     private int columnChunk;
     private int rowChunk;
 
     private List<List<Long>> board;
     private Point startCoord;
 
-    public BoardModel(int columnChunk, int rowChunk) {
+    public BoardState() {
+        this(1, 1, ListUtil.create2DArrayList(3, 3, 0L), new Point(0, 0));
+    }
+
+    private BoardState(int columnChunk, int rowChunk, List<List<Long>> board, Point startCoord) {
         this.columnChunk = columnChunk;
         this.rowChunk = rowChunk;
-        this.board = ListUtil.create2DArrayList(rowChunk + 2, columnChunk + 2, 0L);
-        this.startCoord = new Point(0, 0);
+        this.board = board;
+        this.startCoord = startCoord;
     }
 
     public int getColumnChunk() {
@@ -63,7 +67,7 @@ public class BoardModel {
         }
     }
 
-    public void step() {
+    public BoardState getNextState() {
         //expand board if necessary
         if(board.get(1).stream().anyMatch(l -> l!=0)) { //if the first row has a cell
             List<Long> r = new ArrayList<>();
@@ -116,7 +120,7 @@ public class BoardModel {
                 ListUtil.set2D(nextBoard, i, j, nextGenChunk(chunk, UL, U, UR, L, R, DL, D, DR));
             }
         }
-        board = nextBoard;
+        return new BoardState(columnChunk, rowChunk, nextBoard, startCoord);
     }
 
     /**
