@@ -1,6 +1,7 @@
 package lifegame.model;
 
 import lifegame.util.BitBoardUtil;
+import lifegame.util.Direction;
 import lifegame.util.ListUtil;
 import lifegame.util.Point;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
 
 public class BoardState implements Cloneable {
@@ -45,6 +47,19 @@ public class BoardState implements Cloneable {
     }
 
     public void changeCellState(int x, int y, boolean state) {
+        if (x < startCoord.x * 8) {
+            expandBoard(Direction.LEFT, (int) ceil((startCoord.x * 8 - x) / 8d));
+            startCoord.x = x / 8;
+        } else if (x >= (startCoord.x + columnChunk) * 8) {
+            expandBoard(Direction.RIGHT, (int) ceil((x - (startCoord.x + columnChunk) * 8) / 8d));
+        }
+        if (y < startCoord.y * 8) {
+            expandBoard(Direction.UP, (int) ceil((startCoord.y * 8 - y) / 8d));
+            startCoord.y = y / 8;
+        } else if (y >= (startCoord.y + rowChunk) * 8) {
+            expandBoard(Direction.DOWN, (int) ceil((y - (startCoord.y + rowChunk) * 8) / 8d));
+        }
+
         int chunkX = (int)floor((x - startCoord.x * 8) / 8d);
         int chunkY = (int)floor((y - startCoord.y * 8) / 8d);
         int k = (x - startCoord.x * 8) % 8;
@@ -65,41 +80,67 @@ public class BoardState implements Cloneable {
         }
     }
 
+    private void expandBoard(Direction direction, int n) {
+        switch (direction) {
+            case UP:
+                for (int i = 0; i < n; i++) {
+                    List<Long> r = new ArrayList<>();
+                    for (int j = 0; j < columnChunk + 2; j++) {
+                        r.add(0L);
+                    }
+                    board.add(0, r);
+                }
+                rowChunk += n;
+                startCoord.y -= n;
+                System.out.println("expand up " + n);
+                break;
+            case DOWN:
+                for (int i = 0; i < n; i++) {
+                    List<Long> r = new ArrayList<>();
+                    for (int j = 0; j < columnChunk + 2; j++) {
+                        r.add(0L);
+                    }
+                    board.add(r);
+                }
+                rowChunk += n;
+                System.out.println("expand down " + n);
+                break;
+            case LEFT:
+                for (int i = 0; i < n; i++) {
+                    for (List<Long> l : board) {
+                        l.add(0, 0L);
+                    }
+                }
+                columnChunk += n;
+                startCoord.x -= n;
+                System.out.println("expand left " + n);
+                break;
+            case RIGHT:
+                for (int i = 0; i < n; i++) {
+                    for (List<Long> l : board) {
+                        l.add(0L);
+                    }
+                }
+                columnChunk += n;
+                System.out.println("expand right " + n);
+                break;
+        }
+
+    }
+
     public void nextState() {
         //expand board if necessary
         if(board.get(1).stream().anyMatch(l -> l!=0)) { //if the first row has a cell
-            List<Long> r = new ArrayList<>();
-            for (int j = 0; j < columnChunk + 2; j++) {
-                r.add(0L);
-            }
-            board.add(0, r);
-            rowChunk++;
-            startCoord.y--;
-            System.out.println("expand up");
+            expandBoard(Direction.UP, 1);
         }
         if(board.get(rowChunk).stream().anyMatch(l -> l!=0)) { //if the last row has a cell
-            List<Long> r = new ArrayList<>();
-            for (int j = 0; j < columnChunk + 2; j++) {
-                r.add(0L);
-            }
-            board.add(r);
-            rowChunk++;
-            System.out.println("expand down");
+            expandBoard(Direction.DOWN, 1);
         }
         if(board.stream().anyMatch(l -> l.get(1) != 0)) { //if the first column has a cell
-            for (List<Long> l : board) {
-                l.add(0, 0L);
-            }
-            columnChunk++;
-            startCoord.x--;
-            System.out.println("expand left");
+            expandBoard(Direction.LEFT, 1);
         }
         if(board.stream().anyMatch(l -> l.get(columnChunk) != 0)) { //if the last column has a cell
-            for (List<Long> l : board) {
-                l.add(0L);
-            }
-            columnChunk++;
-            System.out.println("expand right");
+            expandBoard(Direction.RIGHT, 1);
         }
 
         List<List<Long>> nextBoard = ListUtil.create2DArrayList(rowChunk + 2, columnChunk + 2, 0L);
@@ -222,12 +263,25 @@ public class BoardState implements Cloneable {
 
     @Override
     public BoardState clone() {
-        List<List<Long>> newBoard = new ArrayList<>();
-        for (List<Long> l : board) {
-            List<Long> newL = new ArrayList<>(l);
-            newL.addAll(l);
-            newBoard.add(newL);
+        BoardState board=null;
+
+        try {
+            board=(BoardState)super.clone();
+            List<List<Long>> tmp = new ArrayList<>();
+            for (List l : this.board) {
+                List<Long> r = new ArrayList<>();
+                for (Object o : l) {
+                    r.add((Long) o);
+                }
+                tmp.add(r);
+            }
+            board.board = tmp;
+            board.rowChunk = this.rowChunk;
+            board.columnChunk = this.columnChunk;
+            board.startCoord = this.startCoord.clone();
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return new BoardState(columnChunk, rowChunk, newBoard, startCoord);
+        return board;
     }
 }

@@ -46,7 +46,6 @@ public class MainViewModel {
     }
 
     public void onBoardChange(Point coord, boolean newState) {
-        System.out.println("onBoardChange: "+coord.x+" "+coord.y+" "+newState);
         gameModel.changeCellState(coord.x, coord.y, newState);
         undoEnabled.setValue(gameModel.isUndoEnabled());
         board.setValue(new BoardViewData(gameModel.getBoardState().getBoard(), gameModel.getBoardState().getStartCoord()));

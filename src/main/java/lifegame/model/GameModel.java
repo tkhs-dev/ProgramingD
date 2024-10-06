@@ -9,7 +9,6 @@ public class GameModel {
 
     public GameModel() {
         this.boardState = new BoardState();
-        boardState.randomize();
     }
 
     public BoardState getBoardState() {

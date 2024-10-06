@@ -1,6 +1,6 @@
 package lifegame.util;
 
-public class Point {
+public class Point implements Cloneable {
     public int x;
     public int y;
 
@@ -27,5 +27,17 @@ public class Point {
                 "x=" + x +
                 ", y=" + y +
                 '}';
+    }
+
+    @Override
+    public Point clone() {
+        try {
+            Point clone = (Point) super.clone();
+            clone.x = this.x;
+            clone.y = this.y;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
