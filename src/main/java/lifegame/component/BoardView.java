@@ -98,7 +98,7 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
                         chunk <<= 8;
                         continue;
                     }
-                    if(chunkYStart + k > screenStartCoord.y + row + 1) {
+                    if(chunkYStart + k > screenStartCoord.y + row) {
                         break;
                     }
                     for (int l = 0; l < 8; l++) { //l represents the x-coordinate of the cell
@@ -106,7 +106,7 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
                             chunk <<= 1;
                             continue;
                         }
-                        if(chunkXStart + l > screenStartCoord.x + column + 1) {
+                        if(chunkXStart + l > screenStartCoord.x + column) {
                             chunk <<= 8 - l;
                             break;
                         }
