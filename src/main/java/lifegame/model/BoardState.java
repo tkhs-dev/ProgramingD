@@ -46,6 +46,17 @@ public class BoardState implements Cloneable {
         return board;
     }
 
+    public boolean getCellState(int x, int y) {
+        if (x < startCoord.x * 8 || x >= (startCoord.x + columnChunk) * 8 || y < startCoord.y * 8 || y >= (startCoord.y + rowChunk) * 8) {
+            return false;
+        }
+        int chunkX = (int)floor((x - startCoord.x * 8) / 8d);
+        int chunkY = (int)floor((y - startCoord.y * 8) / 8d);
+        int k = (x - startCoord.x * 8) % 8;
+        int l = (y - startCoord.y * 8) % 8;
+        return BitBoardUtil.isOn(ListUtil.get2D(board, chunkY, chunkX), k, l);
+    }
+
     public void changeCellState(int x, int y, boolean state) {
         if (x < startCoord.x * 8) {
             expandBoard(Direction.LEFT, (int) ceil((startCoord.x * 8 - x) / 8d));

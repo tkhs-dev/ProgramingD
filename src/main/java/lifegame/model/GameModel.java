@@ -25,7 +25,11 @@ public class GameModel {
     }
 
     public void changeCellState(int x, int y, boolean state){
-        addHistory();
+        changeCellState(x, y, state, true);
+    }
+
+    public void changeCellState(int x, int y, boolean state, boolean addHistory){
+        if(addHistory) addHistory();
         boardState.changeCellState(x, y, state);
     }
 

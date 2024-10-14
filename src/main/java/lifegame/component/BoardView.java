@@ -1,7 +1,7 @@
 package lifegame.component;
 
-import lifegame.util.Event;
 import lifegame.util.ListUtil;
+import lifegame.util.Observable;
 import lifegame.util.Point;
 
 import javax.swing.*;
@@ -11,27 +11,69 @@ import java.awt.event.*;
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
 
-public class BoardView extends JPanel implements MouseMotionListener, MouseListener {
+public class BoardView extends JPanel{
     private int row;
     private int column;
-    private final int separatorWidth;
+    private int separatorWidth;
     private int cellSize;
 
     private BoardViewData board;
     private boolean[][] buffer;
 
-    private Point screenStartCoord;
+    private Point currentScrollPosition;
 
-    private lifegame.util.Event<BoardChangeEvent> _boardChangeEvent = new lifegame.util.Event<>();
-    public final Event.Observable<BoardChangeEvent> boardChangeEvent;
+    Observable<MouseEvent> mousePressed;
+    Observable<MouseEvent> mouseDragged;
+    Observable<MouseEvent> mouseReleased;
+    public Observable<Point> interactEvent;
 
     public BoardView(int cellSize, int separatorWidth) {
         super();
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
+
+        mousePressed = Observable.create(emitter->{
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    e.consume();
+                    e.setSource(BoardView.this);
+                    emitter.next(e);
+                }
+            });
+        });
+
+        mouseDragged = Observable.create(emitter->{
+            addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    e.consume();
+                    e.setSource(BoardView.this);
+                    emitter.next(e);
+                }
+            });
+        });
+
+        mouseReleased = Observable.create(emitter->{
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    e.consume();
+                    e.setSource(BoardView.this);
+                    emitter.next(e);
+                }
+            });
+        });
+
+        interactEvent = mousePressed
+                .switchMap(event -> mouseDragged
+                        .merge(mouseReleased)
+                        .filter(e->event.getButton() == MouseEvent.BUTTON1)
+                        .map(e->transformScreenCoordToBoardCoord(e.getX(), e.getY()))
+                        .distinctUntilChanged()
+                ).filter(e->e.x>= currentScrollPosition.x && e.x < currentScrollPosition.x + column && e.y >= currentScrollPosition.y && e.y < row + currentScrollPosition.y);
+
         this.cellSize = cellSize;
         this.separatorWidth = separatorWidth;
-        this.screenStartCoord = new Point(0, 0);
+        this.currentScrollPosition = new Point(0, 0);
         this.board = new BoardViewData(ListUtil.create2DArrayList(1, 1, 0L), new Point(0, 0));
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
@@ -39,7 +81,6 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
                 loadToBuffer();
             }
         });
-        boardChangeEvent = _boardChangeEvent.getObservable();
     }
 
     public BoardView(int cellSize) {
@@ -54,11 +95,19 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
         return column;
     }
 
+    public int getSeparatorWidth() {
+        return separatorWidth;
+    }
+
     public void setCellSize(int cellSize) {
         this.cellSize = cellSize;
         updateBoardSize();
         loadToBuffer();
         repaint();
+    }
+
+    public int getCellSize() {
+        return cellSize;
     }
 
     public void updateBoard(BoardViewData board) {
@@ -73,8 +122,12 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
         buffer = new boolean[row+2][column+2];
     }
 
+    private Point transformScreenCoordToBoardCoord(int x, int y) {
+        return new Point((int) floor((double) (x - separatorWidth) / (cellSize + separatorWidth)) + currentScrollPosition.x, (int) floor((double) (y - separatorWidth) / (cellSize + separatorWidth)) + currentScrollPosition.y);
+    }
+
     private void loadToBuffer() {
-        Point chunkStart = new Point((int)floor((screenStartCoord.x - 1)/8d), (int)floor((screenStartCoord.y - 1)/8d));
+        Point chunkStart = new Point((int)floor((currentScrollPosition.x - 1)/8d), (int)floor((currentScrollPosition.y - 1)/8d));
         Point chunkEnd = chunkStart.add(new Point((int)ceil(column/8d), (int)ceil(row/8d)));
         Point offset = board.startChunkCoord();
         for (int i = chunkStart.y; i <= chunkEnd.y; i++) {
@@ -94,23 +147,23 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
                 }
                 long chunk = ListUtil.get2D(board.board(), i - offset.y, j - offset.x);
                 for (int k = 0; k < 8; k++) { //k represents the y-coordinate of the cell
-                    if(chunkYStart + k < screenStartCoord.y - 1) {
+                    if(chunkYStart + k < currentScrollPosition.y - 1) {
                         chunk <<= 8;
                         continue;
                     }
-                    if(chunkYStart + k > screenStartCoord.y + row) {
+                    if(chunkYStart + k > currentScrollPosition.y + row) {
                         break;
                     }
                     for (int l = 0; l < 8; l++) { //l represents the x-coordinate of the cell
-                        if(chunkXStart + l < screenStartCoord.x - 1) {
+                        if(chunkXStart + l < currentScrollPosition.x - 1) {
                             chunk <<= 1;
                             continue;
                         }
-                        if(chunkXStart + l > screenStartCoord.x + column) {
+                        if(chunkXStart + l > currentScrollPosition.x + column) {
                             chunk <<= 8 - l;
                             break;
                         }
-                        buffer[chunkYStart + k - screenStartCoord.y + 1][chunkXStart + l - screenStartCoord.x + 1] = chunk < 0;
+                        buffer[chunkYStart + k - currentScrollPosition.y + 1][chunkXStart + l - currentScrollPosition.x + 1] = chunk < 0;
                         chunk <<= 1;
                     }
                 }
@@ -139,45 +192,5 @@ public class BoardView extends JPanel implements MouseMotionListener, MouseListe
                 g.fillRect(separatorWidth + j * (cellSize + separatorWidth) + 1, separatorWidth + i * (cellSize + separatorWidth) + 1, cellSize - 1, cellSize - 1);
             }
         }
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        int x = (int) floor((double) (e.getX() - separatorWidth) / (cellSize + separatorWidth));
-        int y = (int) floor((double) (e.getY() - separatorWidth) / (cellSize + separatorWidth));
-        if (x < 0 || x >= column || y < 0 || y >= row) {
-            return;
-        }
-        _boardChangeEvent.notify(new BoardChangeEvent(new Point(x + screenStartCoord.x, y + screenStartCoord.y), !buffer[y + 1][x + 1]));
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
     }
 }

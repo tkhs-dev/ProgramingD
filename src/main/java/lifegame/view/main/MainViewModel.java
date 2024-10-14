@@ -45,6 +45,12 @@ public class MainViewModel {
 
     }
 
+    public void onBoardClick(Point coord) {
+        gameModel.changeCellState(coord.x, coord.y, !gameModel.getBoardState().getCellState(coord.x, coord.y));
+        undoEnabled.setValue(gameModel.isUndoEnabled());
+        board.setValue(new BoardViewData(gameModel.getBoardState().getBoard(), gameModel.getBoardState().getStartCoord()));
+    }
+
     public void onBoardChange(Point coord, boolean newState) {
         gameModel.changeCellState(coord.x, coord.y, newState);
         undoEnabled.setValue(gameModel.isUndoEnabled());
