@@ -26,6 +26,7 @@ public class BoardView extends JPanel{
     Observable<MouseEvent> mouseDragged;
     Observable<MouseEvent> mouseReleased;
     public Observable<Point> interactEvent;
+    public Observable<Point> scrollEvent;
 
     public BoardView(int cellSize, int separatorWidth) {
         super();
@@ -70,6 +71,21 @@ public class BoardView extends JPanel{
                         .map(e->transformScreenCoordToBoardCoord(e.getX(), e.getY()))
                         .distinctUntilChanged()
                 ).filter(e->e.x>= currentScrollPosition.x && e.x < currentScrollPosition.x + column && e.y >= currentScrollPosition.y && e.y < row + currentScrollPosition.y);
+
+        mousePressed
+                .switchMap(event -> {
+                            var point = transformScreenCoordToBoardCoord(event.getX(), event.getY());
+                            return mouseDragged
+                                    .filter(e -> SwingUtilities.isMiddleMouseButton(event))
+                                    .map(e -> new Point(e.getX(), e.getY()))
+                                    .distinctUntilChanged()
+                                    .map(e -> point.sub(transformScreenCoordToBoardCoord(e.x, e.y)));
+                        }
+                ).subscribe(p -> {
+                    currentScrollPosition = currentScrollPosition.add(p);
+                    loadToBuffer();
+                    repaint();
+                });
 
         this.cellSize = cellSize;
         this.separatorWidth = separatorWidth;
