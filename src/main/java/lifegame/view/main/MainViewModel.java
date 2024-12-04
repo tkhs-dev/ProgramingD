@@ -1,9 +1,12 @@
 package lifegame.view.main;
 
+import lifegame.Main;
 import lifegame.component.BoardViewData;
 import lifegame.model.GameModel;
 import lifegame.util.Point;
 import lifegame.util.State;
+
+import javax.swing.*;
 
 public class MainViewModel {
     GameModel gameModel;
@@ -42,7 +45,7 @@ public class MainViewModel {
     }
 
     public void onNewGameClick() {
-
+        SwingUtilities.invokeLater(Main::NewWindow);
     }
 
     public void onBoardClick(Point coord) {
