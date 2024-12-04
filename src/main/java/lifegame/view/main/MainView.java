@@ -32,11 +32,15 @@ public class MainView extends JPanel {
         JPanel viewSettingPanel = new JPanel();
         viewSettingPanel.setBorder(new EmptyBorder(10, 25, 10, 25));
         viewSettingPanel.setBackground(Color.LIGHT_GRAY);
-        viewSettingPanel.setLayout(new GridLayout(2, 1));
+        viewSettingPanel.setLayout(new GridLayout(4, 1));
         JSlider scaleSlider = new JSlider(3, 100, 10);
         scaleSlider.addChangeListener(e -> viewModel.onScaleChange(scaleSlider.getValue()));
-        viewSettingPanel.add(new JLabel("View Setting"));
+        JSlider speedSlider = new JSlider(1, 10, 5);
+        speedSlider.addChangeListener(e -> viewModel.onSpeedChange(speedSlider.getValue()));
+        viewSettingPanel.add(new JLabel("View Scale"));
         viewSettingPanel.add(scaleSlider);
+        viewSettingPanel.add(new JLabel("Speed"));
+        viewSettingPanel.add(speedSlider);
         viewSettingPanel.setPreferredSize(new Dimension(180, 100));
 
         springLayout.putConstraint(SpringLayout.SOUTH, viewSettingPanel, -30, SpringLayout.SOUTH, boardView);
