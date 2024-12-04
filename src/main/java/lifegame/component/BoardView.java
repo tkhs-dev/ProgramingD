@@ -201,7 +201,7 @@ public class BoardView extends JPanel{
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < column; j++) {
                 if (buffer[i + 1][j + 1]) {
-                    g.setColor(Color.YELLOW);
+                    g.setColor(Color.RED);
                 }else{
                     g.setColor(Color.WHITE);
                 }
