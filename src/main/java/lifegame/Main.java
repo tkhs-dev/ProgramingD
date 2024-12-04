@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Life Game");
+        JFrame frame = new JFrame("Lifegame");
         frame.setContentPane(new MainView(new MainViewModel(new GameModel())));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(500, 500));
