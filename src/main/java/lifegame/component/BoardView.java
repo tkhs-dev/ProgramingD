@@ -26,7 +26,6 @@ public class BoardView extends JPanel{
     Observable<MouseEvent> mouseDragged;
     Observable<MouseEvent> mouseReleased;
     public Observable<Point> interactEvent;
-    public Observable<Point> scrollEvent;
 
     public BoardView(int cellSize, int separatorWidth) {
         super();
