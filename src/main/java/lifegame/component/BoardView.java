@@ -7,6 +7,7 @@ import lifegame.util.Point;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
@@ -127,6 +128,9 @@ public class BoardView extends JPanel{
 
     public void updateBoard(BoardViewData board) {
         this.board = board;
+        if(board.board().size() == 3){
+            clearBuffer();
+        }
         loadToBuffer();
         repaint();
     }
@@ -182,6 +186,14 @@ public class BoardView extends JPanel{
                         chunk <<= 1;
                     }
                 }
+            }
+        }
+    }
+
+    private void clearBuffer(){
+        for (int i = 0; i < row + 2; i++) {
+            for (int j = 0; j < column + 2; j++) {
+                buffer[i][j] = false;
             }
         }
     }

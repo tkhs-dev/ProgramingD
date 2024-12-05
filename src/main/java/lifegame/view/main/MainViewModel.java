@@ -61,7 +61,8 @@ public class MainViewModel {
     }
 
     public void onResetClick() {
-
+        gameModel.get().clear();
+        postChange();
     }
 
     public void onNewGameClick() {

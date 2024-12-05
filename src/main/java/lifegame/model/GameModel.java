@@ -4,8 +4,7 @@ import java.util.ArrayDeque;
 
 public class GameModel {
     private BoardState boardState;
-    private ArrayDeque<BoardState> historyStack = new ArrayDeque<>();
-    private int historySize = 32;
+    private final ArrayDeque<BoardState> historyStack = new ArrayDeque<>();
 
     public GameModel() {
         this.boardState = new BoardState();
@@ -15,13 +14,14 @@ public class GameModel {
         return boardState;
     }
 
-    public void setBoardState(BoardState boardState) {
-        this.boardState = boardState;
-    }
-
     public void step(){
         addHistory();
         boardState.nextState();
+    }
+
+    public void clear(){
+        addHistory();
+        this.boardState = new BoardState();
     }
 
     public void changeCellState(int x, int y, boolean state){
@@ -35,7 +35,8 @@ public class GameModel {
 
     private void addHistory(){
         historyStack.push(boardState.clone());
-        if(historyStack.size() > historySize){
+        int HISTORY_SIZE = 32;
+        if(historyStack.size() > HISTORY_SIZE){
             historyStack.pollLast();
         }
     }
