@@ -64,13 +64,11 @@ public class BoardState implements Cloneable, Externalizable {
     public void changeCellState(int x, int y, boolean state) {
         if (x < startCoord.x * 8) {
             expandBoard(Direction.LEFT, (int) ceil((startCoord.x * 8 - x) / 8d));
-            startCoord.x = x / 8;
         } else if (x >= (startCoord.x + columnChunk) * 8) {
             expandBoard(Direction.RIGHT, (int) ceil((x - (startCoord.x + columnChunk) * 8) / 8d));
         }
         if (y < startCoord.y * 8) {
             expandBoard(Direction.UP, (int) ceil((startCoord.y * 8 - y) / 8d));
-            startCoord.y = y / 8;
         } else if (y >= (startCoord.y + rowChunk) * 8) {
             expandBoard(Direction.DOWN, (int) ceil((y - (startCoord.y + rowChunk) * 8) / 8d));
         }
