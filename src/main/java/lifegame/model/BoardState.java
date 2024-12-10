@@ -5,6 +5,10 @@ import lifegame.util.Direction;
 import lifegame.util.ListUtil;
 import lifegame.util.Point;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,7 +16,7 @@ import java.util.Random;
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
 
-public class BoardState implements Cloneable {
+public class BoardState implements Cloneable, Externalizable {
     private int columnChunk;
     private int rowChunk;
 
@@ -294,5 +298,39 @@ public class BoardState implements Cloneable {
             e.printStackTrace();
         }
         return board;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        System.out.println("writeExternal");
+        System.out.println("columnChunk: "+columnChunk);
+        System.out.println("rowChunk: "+rowChunk);
+        out.writeInt(columnChunk);
+        out.writeInt(rowChunk);
+        for (List<Long> l : board) {
+            for (Long aLong : l) {
+                out.writeLong(aLong);
+            }
+        }
+        out.writeInt(startCoord.x);
+        out.writeInt(startCoord.y);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        columnChunk = in.readInt();
+        rowChunk = in.readInt();
+        board = new ArrayList<>();
+        for (int i = 0; i < rowChunk + 2; i++) {
+            List<Long> l = new ArrayList<>();
+            for (int j = 0; j < columnChunk + 2; j++) {
+                l.add(in.readLong());
+            }
+            board.add(l);
+        }
+        startCoord = new Point(in.readInt(), in.readInt());
+        System.out.println("readExternal");
+        System.out.println("columnChunk: "+columnChunk);
+        System.out.println("rowChunk: "+rowChunk);
     }
 }

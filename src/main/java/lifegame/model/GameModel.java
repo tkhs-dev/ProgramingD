@@ -1,5 +1,6 @@
 package lifegame.model;
 
+import java.io.*;
 import java.util.ArrayDeque;
 
 public class GameModel {
@@ -50,5 +51,30 @@ public class GameModel {
 
     public boolean isUndoEnabled(){
         return !historyStack.isEmpty();
+    }
+
+    public void saveState(File file) {
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            boardState.writeExternal(objectOutputStream);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadState(File file) {
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            boardState.readExternal(objectInputStream);
+            objectInputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

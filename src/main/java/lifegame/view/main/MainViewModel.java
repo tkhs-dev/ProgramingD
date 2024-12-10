@@ -87,4 +87,19 @@ public class MainViewModel {
         undoEnabled.setValue(gameModel.get().isUndoEnabled());
         board.setValue(new BoardViewData(gameModel.get().getBoardState().getBoard(), gameModel.get().getBoardState().getStartCoord()));
     }
+
+    public void saveState() {
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            gameModel.get().saveState(fileChooser.getSelectedFile());
+        }
+    }
+
+    public void loadState() {
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            gameModel.get().loadState(fileChooser.getSelectedFile());
+            postChange();
+        }
+    }
 }
