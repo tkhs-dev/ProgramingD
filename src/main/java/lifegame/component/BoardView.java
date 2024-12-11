@@ -128,9 +128,6 @@ public class BoardView extends JPanel{
 
     public void updateBoard(BoardViewData board) {
         this.board = board;
-        if(board.board().size() == 3){
-            clearBuffer();
-        }
         loadToBuffer();
         repaint();
     }
@@ -146,6 +143,7 @@ public class BoardView extends JPanel{
     }
 
     private void loadToBuffer() {
+        clearBuffer();
         Point chunkStart = new Point((int)floor((currentScrollPosition.x - 1)/8d), (int)floor((currentScrollPosition.y - 1)/8d));
         Point chunkEnd = chunkStart.add(new Point((int)ceil(column/8d), (int)ceil(row/8d)));
         Point offset = board.startChunkCoord();
