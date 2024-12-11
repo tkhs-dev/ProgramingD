@@ -5,7 +5,7 @@ public class BitBoardUtil {
         if (x < 0 || x >= 8 || y < 0 || y >= 8) {
             throw new IllegalArgumentException("Out of range");
         }
-        return (bitBoard & (1L << 63 - (x + y * 8))) != 0;
+        return bitBoard << (x + y * 8) < 0;
     }
 
     public static long setOn(long bitBoard, int x, int y) {
