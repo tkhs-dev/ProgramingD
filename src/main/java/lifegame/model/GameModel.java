@@ -1,5 +1,6 @@
 package lifegame.model;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.ArrayDeque;
 
@@ -62,7 +63,7 @@ public class GameModel {
             objectOutputStream.flush();
             objectOutputStream.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Failed to save state");
         }
     }
 
@@ -74,7 +75,7 @@ public class GameModel {
             boardState.readExternal(objectInputStream);
             objectInputStream.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Failed to load state");
         }
     }
 }
