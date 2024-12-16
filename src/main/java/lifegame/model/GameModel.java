@@ -74,6 +74,10 @@ public class GameModel {
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
             boardState.readExternal(objectInputStream);
             objectInputStream.close();
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "File not found");
+        } catch(StreamCorruptedException e){
+            JOptionPane.showMessageDialog(null, "Invalid file format");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Failed to load state");
         }
