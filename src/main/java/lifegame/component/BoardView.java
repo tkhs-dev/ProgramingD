@@ -102,7 +102,7 @@ public class BoardView extends JPanel{
     }
 
     public BoardView(int cellSize) {
-        this(cellSize, 1);
+        this(cellSize, 0);
     }
 
     public int getRow() {
