@@ -27,7 +27,7 @@ public class MainView extends JPanel {
         boardView.setLayout(springLayout);
         Binding.bindSetter(viewModel.scale, boardView::setCellSize);
         Binding.bindSetter(viewModel.board, boardView::updateBoard);
-        boardView.interactEvent.subscribe(viewModel::onBoardClick,()->{System.out.println("complete");});
+        boardView.interactEvent.subscribe(viewModel::onBoardClick);
 
         JPanel viewSettingPanel = new JPanel();
         viewSettingPanel.setBorder(new EmptyBorder(10, 25, 10, 25));

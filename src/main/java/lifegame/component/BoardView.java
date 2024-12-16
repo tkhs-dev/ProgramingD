@@ -37,21 +37,21 @@ public class BoardView extends JPanel{
                 public void mousePressed(MouseEvent e) {
                     e.consume();
                     e.setSource(BoardView.this);
-                    emitter.next(e);
+                    emitter.onNext(e);
                 }
             });
         });
 
-        mouseDragged = Observable.create(emitter->{
+        mouseDragged = Observable.<MouseEvent>create(emitter->{
             addMouseMotionListener(new MouseMotionAdapter() {
                 @Override
                 public void mouseDragged(MouseEvent e) {
                     e.consume();
                     e.setSource(BoardView.this);
-                    emitter.next(e);
+                    emitter.onNext(e);
                 }
             });
-        });
+        }).publish();
 
         mouseReleased = Observable.create(emitter->{
             addMouseListener(new MouseAdapter() {
@@ -59,33 +59,47 @@ public class BoardView extends JPanel{
                 public void mouseReleased(MouseEvent e) {
                     e.consume();
                     e.setSource(BoardView.this);
-                    emitter.next(e);
+                    emitter.onNext(e);
                 }
             });
         });
 
+//        interactEvent = mousePressed
+//                .switchMap(event ->
+//                    Observable.just(event)
+//                        .merge(mouseDragged)
+//                        .filter(e->event.getButton() == MouseEvent.BUTTON1)
+//                        .map(e->transformScreenCoordToBoardCoord(e.getX(), e.getY()))
+//                        .distinctUntilChanged()
+//                ).filter(e->e.x>= currentScrollPosition.x && e.x < currentScrollPosition.x + column && e.y >= currentScrollPosition.y && e.y < row + currentScrollPosition.y);
         interactEvent = mousePressed
-                .switchMap(event -> mouseDragged
-                        .merge(mouseReleased)
-                        .filter(e->event.getButton() == MouseEvent.BUTTON1)
-                        .map(e->transformScreenCoordToBoardCoord(e.getX(), e.getY()))
+                .switchMap( event ->
+                    Observable.just(event)
+                        .merge(mouseDragged)
+                        .filter(e -> SwingUtilities.isLeftMouseButton(event))
+                        .map(e -> transformScreenCoordToBoardCoord(e.getX(), e.getY()))
                         .distinctUntilChanged()
-                ).filter(e->e.x>= currentScrollPosition.x && e.x < currentScrollPosition.x + column && e.y >= currentScrollPosition.y && e.y < row + currentScrollPosition.y);
-
-        mousePressed
-                .switchMap(event -> {
-                            var point = transformScreenCoordToBoardCoord(event.getX(), event.getY());
-                            return mouseDragged
-                                    .filter(e -> SwingUtilities.isMiddleMouseButton(event))
-                                    .map(e -> new Point(e.getX(), e.getY()))
-                                    .distinctUntilChanged()
-                                    .map(e -> point.sub(transformScreenCoordToBoardCoord(e.x, e.y)));
-                        }
-                ).subscribe(p -> {
-                    currentScrollPosition = currentScrollPosition.add(p);
-                    loadToBuffer();
-                    repaint();
+                ).map(e -> {
+                    System.out.println(e);
+                    return e;
                 });
+
+
+
+//        mousePressed
+//                .switchMap(event -> {
+//                            var point = transformScreenCoordToBoardCoord(event.getX(), event.getY());
+//                            return mouseDragged
+//                                    .filter(e -> SwingUtilities.isMiddleMouseButton(event))
+//                                    .map(e -> new Point(e.getX(), e.getY()))
+//                                    .distinctUntilChanged()
+//                                    .map(e -> point.sub(transformScreenCoordToBoardCoord(e.x, e.y)));
+//                        }
+//                ).subscribe(p -> {
+//                    currentScrollPosition = currentScrollPosition.add(p);
+//                    loadToBuffer();
+//                    repaint();
+//                });
 
         this.cellSize = cellSize;
         this.separatorWidth = separatorWidth;
