@@ -156,7 +156,7 @@ public class Rx {
             AtomicReference<Subscription> currentSubscription = new AtomicReference<>();
             AtomicBoolean isCompleted = new AtomicBoolean(false);
 
-            this.subscribe(new Observer<T>() {
+            this.subscribe(new Observer<>() {
                 final AtomicLong version = new AtomicLong(0);
 
                 @Override

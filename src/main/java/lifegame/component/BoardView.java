@@ -7,7 +7,6 @@ import lifegame.util.Rx;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Objects;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
