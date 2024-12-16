@@ -16,26 +16,26 @@ public class GameModel {
         return boardState;
     }
 
-    public void step(){
+    public synchronized void step(){
         addHistory();
         boardState.nextState();
     }
 
-    public void clear(){
+    public synchronized void clear(){
         addHistory();
         this.boardState = new BoardState();
     }
 
-    public void changeCellState(int x, int y, boolean state){
+    public synchronized void changeCellState(int x, int y, boolean state){
         changeCellState(x, y, state, true);
     }
 
-    public void changeCellState(int x, int y, boolean state, boolean addHistory){
+    public synchronized void changeCellState(int x, int y, boolean state, boolean addHistory){
         if(addHistory) addHistory();
         boardState.changeCellState(x, y, state);
     }
 
-    private void addHistory(){
+    private synchronized void addHistory(){
         historyStack.push(boardState.clone());
         int HISTORY_SIZE = 32;
         if(historyStack.size() > HISTORY_SIZE){
@@ -43,7 +43,7 @@ public class GameModel {
         }
     }
 
-    public void undo(){
+    public synchronized void undo(){
         if(historyStack.isEmpty()){
             return;
         }
