@@ -10,7 +10,6 @@ public class Rx {
     // Hot Observable implementation
     public static class Observable<T> {
         private final List<Observer<? super T>> observers = new CopyOnWriteArrayList<>();
-        private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
         public void subscribe(Observer<? super T> observer) {
             observers.add(observer);
@@ -62,6 +61,7 @@ public class Rx {
         public static <T> Observable<T> just(T item) {
             return Observable.create(emitter -> {
                 emitter.executor.execute(() -> {
+                    item.toString(); //これがないとなぜか動かない
                     emitter.next(item);
                     emitter.complete();
                 });
