@@ -10,7 +10,6 @@ public class Rx {
     // Hot Observable implementation
     public static class Observable<T> {
         private final List<Observer<? super T>> observers = new CopyOnWriteArrayList<>();
-        private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
         public void subscribe(Observer<? super T> observer) {
             observers.add(observer);
@@ -62,6 +61,7 @@ public class Rx {
         public static <T> Observable<T> just(T item) {
             return Observable.create(emitter -> {
                 emitter.executor.execute(() -> {
+                    item.toString();
                     emitter.next(item);
                     emitter.complete();
                 });
@@ -229,6 +229,76 @@ public class Rx {
                 @Override
                 public void onComplete() {
                     result.complete();
+                }
+            });
+            return result;
+        }
+
+        //takeUntil implementation
+        public Observable<T> takeUntil(Observable<?> until) {
+            Observable<T> result = new Observable<>();
+            AtomicBoolean isCompleted = new AtomicBoolean(false);
+            AtomicReference<Subscription> subscription = new AtomicReference<>();
+            until.subscribe(new Observer<Object>() {
+                @Override
+                public void onNext(Object item) {
+                    if (isCompleted.get()) {
+                        return;
+                    }
+                    isCompleted.set(true);
+                    Subscription currentSubscription = subscription.getAndSet(null);
+                    if (currentSubscription != null) {
+                        currentSubscription.cancel();
+                    }
+                    result.complete();
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    if (isCompleted.get()) {
+                        return;
+                    }
+                    isCompleted.set(true);
+                    Subscription currentSubscription = subscription.getAndSet(null);
+                    if (currentSubscription != null) {
+                        currentSubscription.cancel();
+                    }
+                    result.error(error);
+                }
+
+                @Override
+                public void onComplete() {
+                    if (isCompleted.get()) {
+                        return;
+                    }
+                    isCompleted.set(true);
+                    Subscription currentSubscription = subscription.getAndSet(null);
+                    if (currentSubscription != null) {
+                        currentSubscription.cancel();
+                    }
+                    result.complete();
+                }
+            });
+            this.subscribe(new Observer<T>() {
+                @Override
+                public void onNext(T item) {
+                    if (!isCompleted.get()) {
+                        result.next(item);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    if (!isCompleted.get()) {
+                        result.error(error);
+                    }
+                }
+
+                @Override
+                public void onComplete() {
+                    if (!isCompleted.get()) {
+                        result.complete();
+                    }
                 }
             });
             return result;

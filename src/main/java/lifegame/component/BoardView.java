@@ -70,6 +70,7 @@ public class BoardView extends JPanel{
                         .filter(e -> SwingUtilities.isLeftMouseButton(event))
                         .map(e -> transformScreenCoordToBoardCoord(e.getX(), e.getY()))
                         .distinctUntilChanged()
+                        .takeUntil(mouseReleased)
                 ).filter(e->e.x>= currentScrollPosition.x && e.x < currentScrollPosition.x + column && e.y >= currentScrollPosition.y && e.y < row + currentScrollPosition.y);
 
 
