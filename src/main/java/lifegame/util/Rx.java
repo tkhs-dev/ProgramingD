@@ -233,6 +233,76 @@ public class Rx {
             });
             return result;
         }
+
+        //takeUntil implementation
+        public Observable<T> takeUntil(Observable<?> until) {
+            Observable<T> result = new Observable<>();
+            AtomicBoolean isCompleted = new AtomicBoolean(false);
+            AtomicReference<Subscription> subscription = new AtomicReference<>();
+            until.subscribe(new Observer<Object>() {
+                @Override
+                public void onNext(Object item) {
+                    if (isCompleted.get()) {
+                        return;
+                    }
+                    isCompleted.set(true);
+                    Subscription currentSubscription = subscription.getAndSet(null);
+                    if (currentSubscription != null) {
+                        currentSubscription.cancel();
+                    }
+                    result.complete();
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    if (isCompleted.get()) {
+                        return;
+                    }
+                    isCompleted.set(true);
+                    Subscription currentSubscription = subscription.getAndSet(null);
+                    if (currentSubscription != null) {
+                        currentSubscription.cancel();
+                    }
+                    result.error(error);
+                }
+
+                @Override
+                public void onComplete() {
+                    if (isCompleted.get()) {
+                        return;
+                    }
+                    isCompleted.set(true);
+                    Subscription currentSubscription = subscription.getAndSet(null);
+                    if (currentSubscription != null) {
+                        currentSubscription.cancel();
+                    }
+                    result.complete();
+                }
+            });
+            this.subscribe(new Observer<T>() {
+                @Override
+                public void onNext(T item) {
+                    if (!isCompleted.get()) {
+                        result.next(item);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    if (!isCompleted.get()) {
+                        result.error(error);
+                    }
+                }
+
+                @Override
+                public void onComplete() {
+                    if (!isCompleted.get()) {
+                        result.complete();
+                    }
+                }
+            });
+            return result;
+        }
     }
 
     public static class Emitter<T> {
