@@ -5,10 +5,7 @@ import lifegame.util.Direction;
 import lifegame.util.ListUtil;
 import lifegame.util.Point;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -300,9 +297,6 @@ public class BoardState implements Cloneable, Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        System.out.println("writeExternal");
-        System.out.println("columnChunk: "+columnChunk);
-        System.out.println("rowChunk: "+rowChunk);
         out.writeInt(columnChunk);
         out.writeInt(rowChunk);
         for (List<Long> l : board) {
@@ -327,8 +321,5 @@ public class BoardState implements Cloneable, Externalizable {
             board.add(l);
         }
         startCoord = new Point(in.readInt(), in.readInt());
-        System.out.println("readExternal");
-        System.out.println("columnChunk: "+columnChunk);
-        System.out.println("rowChunk: "+rowChunk);
     }
 }

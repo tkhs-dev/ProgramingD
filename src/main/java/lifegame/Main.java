@@ -1,6 +1,7 @@
 package lifegame;
 
 import lifegame.model.GameModel;
+import lifegame.util.Preset;
 import lifegame.view.main.MainView;
 import lifegame.view.main.MainViewModel;
 
@@ -23,7 +24,14 @@ public class Main {
         loadItem.addActionListener(e -> viewModel.loadState());
         fileMenu.add(loadItem);
         fileMenu.add(saveItem);
+        JMenu presetMenu = new JMenu("Preset");
+        Preset.PRESETS.forEach(preset -> {
+            JMenuItem item = new JMenuItem(preset.getDisplayName());
+            item.addActionListener(e -> viewModel.loadState(preset.getFile()));
+            presetMenu.add(item);
+        });
         menuBar.add(fileMenu);
+        menuBar.add(presetMenu);
         frame.setJMenuBar(menuBar);
         frame.setContentPane(new MainView(viewModel));
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

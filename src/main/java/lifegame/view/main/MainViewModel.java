@@ -7,10 +7,11 @@ import lifegame.util.Point;
 import lifegame.util.State;
 
 import javax.swing.*;
+import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MainViewModel {
-    AtomicReference<GameModel> gameModel;
+    GameModel gameModel;
     State<Integer> scale = new State<>(10);
     State<Integer> speed = new State<>(5);
     State<Boolean> undoEnabled = new State<>(false);
@@ -18,7 +19,7 @@ public class MainViewModel {
     State<BoardViewData> board = new State<>(BoardViewData.createEmpty());
 
     public MainViewModel(GameModel gameModel) {
-        this.gameModel = new AtomicReference<>(gameModel);
+        this.gameModel = gameModel;
         undoEnabled.setValue(gameModel.isUndoEnabled());
     }
 
@@ -38,7 +39,7 @@ public class MainViewModel {
             isRunning.setValue(true);
             new Thread(() -> {
                 while (isRunning.getValue() && !disposed) {
-                    gameModel.get().step();
+                    gameModel.step();
                     postChange();
                     try {
                         Thread.sleep(1100 - 100L * speed.getValue());
@@ -51,17 +52,17 @@ public class MainViewModel {
     }
 
     public void onUndoClick() {
-        gameModel.get().undo();
+        gameModel.undo();
         postChange();
     }
 
     public void onStepClick() {
-        gameModel.get().step();
+        gameModel.step();
         postChange();
     }
 
     public void onResetClick() {
-        gameModel.get().clear();
+        gameModel.clear();
         postChange();
     }
 
@@ -70,12 +71,12 @@ public class MainViewModel {
     }
 
     public void onBoardClick(Point coord) {
-        gameModel.get().changeCellState(coord.x, coord.y, !gameModel.get().getBoardState().getCellState(coord.x, coord.y));
+        gameModel.changeCellState(coord.x, coord.y, !gameModel.getBoardState().getCellState(coord.x, coord.y));
         postChange();
     }
 
     public void onBoardChange(Point coord, boolean newState) {
-        gameModel.get().changeCellState(coord.x, coord.y, newState);
+        gameModel.changeCellState(coord.x, coord.y, newState);
         postChange();
     }
 
@@ -84,22 +85,26 @@ public class MainViewModel {
     }
 
     private void postChange() {
-        undoEnabled.setValue(gameModel.get().isUndoEnabled());
-        board.setValue(new BoardViewData(gameModel.get().getBoardState().getBoard(), gameModel.get().getBoardState().getStartCoord()));
+        undoEnabled.setValue(gameModel.isUndoEnabled());
+        board.setValue(new BoardViewData(gameModel.getBoardState().getBoard(), gameModel.getBoardState().getStartCoord()));
     }
 
     public void saveState() {
         JFileChooser fileChooser = new JFileChooser();
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-            gameModel.get().saveState(fileChooser.getSelectedFile());
+            gameModel.saveState(fileChooser.getSelectedFile());
         }
     }
 
     public void loadState() {
         JFileChooser fileChooser = new JFileChooser();
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            gameModel.get().loadState(fileChooser.getSelectedFile());
-            postChange();
+            loadState(fileChooser.getSelectedFile());
         }
+    }
+
+    public void loadState(File file) {
+        gameModel.loadState(file);
+        postChange();
     }
 }
