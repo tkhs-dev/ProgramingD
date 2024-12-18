@@ -106,27 +106,11 @@ public class BoardView extends JPanel{
         this(cellSize, 1);
     }
 
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public int getSeparatorWidth() {
-        return separatorWidth;
-    }
-
     public void setCellSize(int cellSize) {
         this.cellSize = cellSize;
         updateBoardSize();
         loadToBuffer();
         repaint();
-    }
-
-    public int getCellSize() {
-        return cellSize;
     }
 
     public void updateBoard(BoardViewData board) {
