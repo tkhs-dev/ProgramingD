@@ -103,7 +103,7 @@ public class BoardView extends JPanel{
     }
 
     public BoardView(int cellSize) {
-        this(cellSize, 0);
+        this(cellSize, 1);
     }
 
     public int getRow() {
@@ -217,7 +217,7 @@ public class BoardView extends JPanel{
                 }else{
                     g.setColor(Color.WHITE);
                 }
-                g.fillRect(separatorWidth + j * (cellSize + separatorWidth) + 1, separatorWidth + i * (cellSize + separatorWidth) + 1, cellSize - 1, cellSize - 1);
+                g.fillRect(separatorWidth + j * (cellSize + separatorWidth), separatorWidth + i * (cellSize + separatorWidth), cellSize, cellSize);
             }
         }
     }
