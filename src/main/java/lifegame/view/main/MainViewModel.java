@@ -7,8 +7,9 @@ import lifegame.util.Point;
 import lifegame.util.State;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MainViewModel {
     GameModel gameModel;
@@ -91,6 +92,8 @@ public class MainViewModel {
 
     public void saveState() {
         JFileChooser fileChooser = new JFileChooser();
+        FileFilter filter = new FileNameExtensionFilter("盤面ファイル", "lg");
+        fileChooser.addChoosableFileFilter(filter);
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             gameModel.saveState(fileChooser.getSelectedFile());
         }
@@ -98,6 +101,9 @@ public class MainViewModel {
 
     public void loadState() {
         JFileChooser fileChooser = new JFileChooser();
+        FileFilter filter = new FileNameExtensionFilter("盤面ファイル", "lg");
+        fileChooser.addChoosableFileFilter(filter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             loadState(fileChooser.getSelectedFile());
         }
