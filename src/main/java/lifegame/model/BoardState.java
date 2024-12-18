@@ -90,6 +90,51 @@ public class BoardState implements Cloneable, Externalizable {
         }
     }
 
+    private void trim(){
+        int newColumnChunk = columnChunk;
+        int newRowChunk = rowChunk;
+        for (int i = 0; i < rowChunk + 2 && newRowChunk >= 2; i++) {
+            if(board.get(1).stream().allMatch(l -> l == 0)){
+                board.remove(0);
+                newRowChunk--;
+            }else {
+                break;
+            }
+        }
+        for (int i = 0; i < columnChunk + 2 && newColumnChunk >= 2; i++) {
+            if(board.stream().allMatch(l -> l.get(1) == 0)){
+                for (List<Long> l : board) {
+                    l.remove(0);
+                }
+                newColumnChunk--;
+            }else {
+                break;
+            }
+        }
+        rowChunk = newRowChunk;
+        columnChunk = newColumnChunk;
+        for (int i = rowChunk + 1; i >= 0 && rowChunk >= 2; i--) {
+            if(board.get(rowChunk).stream().allMatch(l -> l == 0)){
+                board.remove(rowChunk);
+                rowChunk--;
+            }else {
+                break;
+            }
+        }
+        for (int i = columnChunk + 1; i >= 0 && columnChunk >= 2; i--) {
+            if(board.stream().allMatch(l -> l.get(columnChunk) == 0)){
+                System.out.println("trim right " + i);
+                for (List<Long> l : board) {
+                    l.remove(columnChunk);
+                }
+                columnChunk--;
+            }else {
+                break;
+            }
+        }
+        startCoord = new Point(-1,-1);
+    }
+
     private void expandBoard(Direction direction, int n) {
         switch (direction) {
             case UP:
@@ -297,19 +342,21 @@ public class BoardState implements Cloneable, Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeInt(columnChunk);
-        out.writeInt(rowChunk);
-        for (List<Long> l : board) {
+        BoardState clone = this.clone();
+        clone.trim();
+        out.writeInt(clone.columnChunk);
+        out.writeInt(clone.rowChunk);
+        for (List<Long> l : clone.board) {
             for (Long aLong : l) {
                 out.writeLong(aLong);
             }
         }
-        out.writeInt(startCoord.x);
-        out.writeInt(startCoord.y);
+        out.writeInt(clone.startCoord.x);
+        out.writeInt(clone.startCoord.y);
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    public void readExternal(ObjectInput in) throws IOException {
         columnChunk = in.readInt();
         rowChunk = in.readInt();
         board = new ArrayList<>();
