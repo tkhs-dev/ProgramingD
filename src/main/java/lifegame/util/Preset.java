@@ -20,6 +20,10 @@ public class Preset {
     }
 
     public static final List<Preset> PRESETS = List.of(
+        new Preset("グライダー", "glider.lg"),
+        new Preset("グライダーガン", "glider-gun.lg"),
+        new Preset("シャトル", "shuttle.lg"),
+        new Preset("どんぐり", "acorn.lg"),
         new Preset("大阪大学", "ou.lg")
     );
 }
