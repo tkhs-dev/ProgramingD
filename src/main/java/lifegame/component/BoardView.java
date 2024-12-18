@@ -152,39 +152,31 @@ public class BoardView extends JPanel{
         Point offset = board.startChunkCoord();
         for (int i = chunkStart.y; i <= chunkEnd.y; i++) {
             for (int j = chunkStart.x; j <= chunkEnd.x; j++) {
-                int chunkXStart = j * 8; //the x-coordinate of the chunk
-                int chunkYStart = i * 8; //the y-coordinate of the chunk
-                if (i - offset.y < 0 || j - offset.x < 0 || i - offset.y >= board.board().size() || j - offset.x >= board.board().get(0).size()) { //if the chunk is out of the board
-//                    for (int k = 0; k < 8; k++) {
-//                        for (int l = 0; l < 8; l++) {
-//                            if(chunkYStart + k >= screenStartCoord.y && chunkYStart + k < screenStartCoord.y + row &&
-//                                    chunkXStart + l >= screenStartCoord.x && chunkXStart + l < screenStartCoord.x + column) {
-//                                buffer[chunkYStart + k - screenStartCoord.y + 1][chunkXStart + l - screenStartCoord.x + 1] = false; //set the cell to dead if it is in the screen and the chunk is out of the board
-//                            }
-//                        }
-//                    }
-                    continue;
+                int chunkXStart = j * 8; //the x-coordinate of the first cell in the chunk
+                int chunkYStart = i * 8; //the y-coordinate of the first cell in the chunk
+                if (i - offset.y < 0 || j - offset.x < 0 || i - offset.y >= board.board().size() || j - offset.x >= board.board().get(0).size()) { //if the chunk is not loaded
+                    continue; //ignore the chunk
                 }
                 long chunk = ListUtil.get2D(board.board(), i - offset.y, j - offset.x);
                 for (int k = 0; k < 8; k++) { //k represents the y-coordinate of the cell
-                    if(chunkYStart + k < currentScrollPosition.y - 1) {
-                        chunk <<= 8;
+                    if(chunkYStart + k < currentScrollPosition.y - 1) { //if the row is above the visible area
+                        chunk <<= 8; //shift the chunk to the next row
                         continue;
                     }
-                    if(chunkYStart + k > currentScrollPosition.y + row) {
-                        break;
+                    if(chunkYStart + k > currentScrollPosition.y + row) { //if the row is below the visible area
+                        break; //skip the rest of the rows
                     }
                     for (int l = 0; l < 8; l++) { //l represents the x-coordinate of the cell
-                        if(chunkXStart + l < currentScrollPosition.x - 1) {
-                            chunk <<= 1;
+                        if(chunkXStart + l < currentScrollPosition.x - 1) { //if the column is to the left of the visible area
+                            chunk <<= 1; //shift the chunk to the next column
                             continue;
                         }
-                        if(chunkXStart + l > currentScrollPosition.x + column) {
-                            chunk <<= 8 - l;
+                        if(chunkXStart + l > currentScrollPosition.x + column) { //if the column is to the right of the visible area
+                            chunk <<= 8 - l; //shift the chunk to the end of the row
                             break;
                         }
-                        buffer[chunkYStart + k - currentScrollPosition.y + 1][chunkXStart + l - currentScrollPosition.x + 1] = chunk < 0;
-                        chunk <<= 1;
+                        buffer[chunkYStart + k - currentScrollPosition.y + 1][chunkXStart + l - currentScrollPosition.x + 1] = chunk < 0; //set the cell to alive if the LSB is 1
+                        chunk <<= 1; //shift the chunk to the next
                     }
                 }
             }
@@ -202,14 +194,6 @@ public class BoardView extends JPanel{
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-//        for (int i = 0; i < row + 1; i++) {
-//            g.setColor(Color.GRAY);
-//            g.drawLine(separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + column * (cellSize + separatorWidth), separatorWidth + i * (cellSize + separatorWidth));
-//        }
-//        for (int i = 0; i < column + 1; i++) {
-//            g.setColor(Color.GRAY);
-//            g.drawLine(separatorWidth + i * (cellSize + separatorWidth), separatorWidth, separatorWidth + i * (cellSize + separatorWidth), separatorWidth + row * (cellSize + separatorWidth));
-//        }
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < column; j++) {
                 if (buffer[i + 1][j + 1]) {
