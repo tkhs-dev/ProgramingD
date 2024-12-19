@@ -41,7 +41,7 @@ public class BoardView extends JPanel{
             });
         });
 
-        mouseDragged = Rx.Observable.<MouseEvent>create(emitter->{
+        mouseDragged = Rx.Observable.create(emitter->{
             addMouseMotionListener(new MouseMotionAdapter() {
                 @Override
                 public void mouseDragged(MouseEvent e) {

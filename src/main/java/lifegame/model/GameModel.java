@@ -5,27 +5,29 @@ import lifegame.Main;
 import javax.swing.*;
 import java.io.*;
 import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GameModel {
-    private BoardState boardState;
-    private final ArrayDeque<BoardState> historyStack = new ArrayDeque<>();
+    private AtomicReference<BoardState> boardState;
+    private final Deque<BoardState> historyStack = new ArrayDeque<>();
 
     public GameModel() {
-        this.boardState = new BoardState();
+        this.boardState = new AtomicReference<>(new BoardState());
     }
 
     public BoardState getBoardState() {
-        return boardState;
+        return boardState.get();
     }
 
     public synchronized void step(){
         addHistory();
-        boardState.nextState();
+        boardState.get().nextState();
     }
 
     public synchronized void clear(){
         addHistory();
-        this.boardState = new BoardState();
+        this.boardState.set(new BoardState());
     }
 
     public synchronized void changeCellState(int x, int y, boolean state){
@@ -34,11 +36,11 @@ public class GameModel {
 
     public synchronized void changeCellState(int x, int y, boolean state, boolean addHistory){
         if(addHistory) addHistory();
-        boardState.changeCellState(x, y, state);
+        boardState.get().changeCellState(x, y, state);
     }
 
     private synchronized void addHistory(){
-        historyStack.push(boardState.clone());
+        historyStack.push(boardState.get().clone());
         int HISTORY_SIZE = 32;
         if(historyStack.size() > HISTORY_SIZE){
             historyStack.pollLast();
@@ -49,7 +51,7 @@ public class GameModel {
         if(historyStack.isEmpty()){
             return;
         }
-        boardState = historyStack.pop();
+        boardState.set(historyStack.pop());
     }
 
     public boolean isUndoEnabled(){
@@ -61,7 +63,7 @@ public class GameModel {
         try {
             fileOutputStream = new FileOutputStream(file);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            boardState.writeExternal(objectOutputStream);
+            boardState.get().writeExternal(objectOutputStream);
             objectOutputStream.flush();
             objectOutputStream.close();
         } catch (Exception e) {
@@ -78,7 +80,7 @@ public class GameModel {
                 fileInputStream = new FileInputStream(file);
             }
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-            boardState.readExternal(objectInputStream);
+            boardState.get().readExternal(objectInputStream);
             objectInputStream.close();
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(null, "File not found");

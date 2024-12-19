@@ -135,7 +135,7 @@ public class BoardState implements Cloneable, Externalizable {
         startCoord = new Point(-1,-1);
     }
 
-    private void expandBoard(Direction direction, int n) {
+    private synchronized void expandBoard(Direction direction, int n) {
         switch (direction) {
             case UP:
                 for (int i = 0; i < n; i++) {
