@@ -1,13 +1,18 @@
 package lifegame.util;
 
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Rx {
-
-    // Hot Observable implementation
     public static class Observable<T> {
         private final List<Observer<? super T>> observers = new CopyOnWriteArrayList<>();
 
@@ -50,14 +55,12 @@ public class Rx {
             }
         }
 
-        // Create method
         public static <T> Observable<T> create(Consumer<Emitter<T>> emitterConsumer) {
             Observable<T> observable = new Observable<>();
             emitterConsumer.accept(new Emitter<>(observable));
             return observable;
         }
 
-        // Just method
         public static <T> Observable<T> just(T item) {
             return Observable.create(emitter -> {
                 emitter.executor.execute(() -> {
@@ -105,7 +108,6 @@ public class Rx {
             return result;
         }
 
-        // Map implementation
         public <R> Observable<R> map(Function<? super T, ? extends R> mapper) {
             Observable<R> result = new Observable<>();
             this.subscribe(new Observer<T>() {
@@ -150,7 +152,6 @@ public class Rx {
             return result;
         }
 
-        // SwitchMap implementation
         public <R> Observable<R> switchMap(Function<? super T, Observable<? extends R>> mapper) {
             Observable<R> result = new Observable<>();
             AtomicReference<Subscription> currentSubscription = new AtomicReference<>();
@@ -234,7 +235,6 @@ public class Rx {
             return result;
         }
 
-        //takeUntil implementation
         public Observable<T> takeUntil(Observable<?> until) {
             Observable<T> result = new Observable<>();
             AtomicBoolean isCompleted = new AtomicBoolean(false);
@@ -328,7 +328,6 @@ public class Rx {
         }
     }
 
-    // Observer interface
     public interface Observer<T> {
         void onNext(T item);
 
@@ -337,7 +336,6 @@ public class Rx {
         void onComplete();
     }
 
-    // Subscription class
     public static class Subscription {
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
 

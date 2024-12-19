@@ -1,7 +1,5 @@
 package lifegame.model;
 
-import lifegame.Main;
-
 import javax.swing.*;
 import java.io.*;
 import java.util.ArrayDeque;

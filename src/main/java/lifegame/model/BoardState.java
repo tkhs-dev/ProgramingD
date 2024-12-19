@@ -5,10 +5,12 @@ import lifegame.util.Direction;
 import lifegame.util.ListUtil;
 import lifegame.util.Point;
 
-import java.io.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
@@ -29,14 +31,6 @@ public class BoardState implements Cloneable, Externalizable {
         this.rowChunk = rowChunk;
         this.board = board;
         this.startCoord = startCoord;
-    }
-
-    public int getColumnChunk() {
-        return columnChunk;
-    }
-
-    public int getRowChunk() {
-        return rowChunk;
     }
 
     public Point getStartCoord() {
@@ -81,15 +75,6 @@ public class BoardState implements Cloneable, Externalizable {
         }
     }
 
-    public void randomize() {
-        Random random = new Random();
-        for (int i = 1; i <= rowChunk; i++) {
-            for (int j = 1; j <= columnChunk; j++) {
-                ListUtil.set2D(board, i, j, random.nextLong());
-            }
-        }
-    }
-
     private void trim(){
         int newColumnChunk = columnChunk;
         int newRowChunk = rowChunk;
@@ -123,7 +108,6 @@ public class BoardState implements Cloneable, Externalizable {
         }
         for (int i = columnChunk + 1; i >= 0 && columnChunk >= 2; i--) {
             if(board.stream().allMatch(l -> l.get(columnChunk) == 0)){
-                System.out.println("trim right " + i);
                 for (List<Long> l : board) {
                     l.remove(columnChunk);
                 }
@@ -147,7 +131,6 @@ public class BoardState implements Cloneable, Externalizable {
                 }
                 rowChunk += n;
                 startCoord.y -= n;
-                System.out.println("expand up " + n);
                 break;
             case DOWN:
                 for (int i = 0; i < n; i++) {
@@ -158,7 +141,6 @@ public class BoardState implements Cloneable, Externalizable {
                     board.add(r);
                 }
                 rowChunk += n;
-                System.out.println("expand down " + n);
                 break;
             case LEFT:
                 for (int i = 0; i < n; i++) {
@@ -168,7 +150,6 @@ public class BoardState implements Cloneable, Externalizable {
                 }
                 columnChunk += n;
                 startCoord.x -= n;
-                System.out.println("expand left " + n);
                 break;
             case RIGHT:
                 for (int i = 0; i < n; i++) {
@@ -177,7 +158,6 @@ public class BoardState implements Cloneable, Externalizable {
                     }
                 }
                 columnChunk += n;
-                System.out.println("expand right " + n);
                 break;
         }
 
@@ -218,55 +198,29 @@ public class BoardState implements Cloneable, Externalizable {
     }
 
     /**
-     * @param chunk target chunk
-     * @param UL    upper left chunk
-     * @param U     upper chunk
-     * @param UR    upper right chunk
-     * @param L     left chunk
-     * @param R     right chunk
-     * @param DL    down left chunk
-     * @param D     down chunk
-     * @param DR    down right chunk
-     * @return
      * @see <a href="http://vivi.dyndns.org/tech/games/LifeGame.html">http://vivi.dyndns.org/tech/games/LifeGame.html</a>
      */
     private static long nextGenChunk(long chunk, long UL, long U, long UR, long L, long R, long DL, long D, long DR) {
         long a, b, c, d, e, f, g, h;
         a = ((UL & 0x0000000000000001L) << 63) | ((U & 0x00000000000000FEL) << 55) |
                 ((L & 0x0101010101010100L) >>> 1) | ((chunk & 0xFEFEFEFEFEFEFEFEL) >>> 9);
-//        System.out.println("------------a------------");
-//        BitBoardUtil.print(a);
 
         b = ((U & 0x00000000000000FFL) << 56) | ((chunk & 0xFFFFFFFFFFFFFF00L) >>> 8);
-//        System.out.println("------------b------------");
-//        BitBoardUtil.print(b);
 
         c = ((U & 0x000000000000007FL) << 57) | ((UR & 0x0000000000000080L) << 49) |
                 ((chunk & 0x7F7F7F7F7F7F7F7FL) >>> 7) | ((R & 0x8080808080808000L) >>> 15);
-//        System.out.println("------------c------------");
-//        BitBoardUtil.print(c);
 
         d = ((L & 0x0101010101010101L) << 7) | ((chunk & 0xFEFEFEFEFEFEFEFEL) >>> 1);
-//        System.out.println("------------d------------");
-//        BitBoardUtil.print(d);
 
         e = ((chunk & 0x7F7F7F7F7F7F7F7FL) << 1) | ((R & 0x8080808080808080L) >>> 7);
-//        System.out.println("------------e------------");
-//        BitBoardUtil.print(e);
 
         f = ((L & 0x0001010101010101L) << 15) | ((chunk & 0x00FEFEFEFEFEFEFEL) << 7) |
                 ((DL & 0x0100000000000000L) >>> 49) | ((D & 0xFE00000000000000L) >>> 57);
-//        System.out.println("------------f------------");
-//        BitBoardUtil.print(f);
 
         g = ((chunk & 0x00FFFFFFFFFFFFFFL) << 8) | ((D & 0xFF00000000000000L) >>> 56);
-//        System.out.println("------------g------------");
-//        BitBoardUtil.print(g);
 
         h = ((chunk & 0x007F7F7F7F7F7F7FL) << 9) | ((R & 0x0080808080808080L) << 1) |
                 ((D & 0x7F00000000000000L) >>> 55) | ((DR & 0x8000000000000000L) >>> 63);
-//        System.out.println("------------h------------");
-//        BitBoardUtil.print(h);
 
         long xab, xcd, xef, xgh, x, s2, s3;
         //copied from http://vivi.dyndns.org/tech/games/LifeGame.html
