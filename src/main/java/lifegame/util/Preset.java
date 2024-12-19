@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 public class Preset {
-    private static final String PRESETS_DIR = "src/main/resources/presets";
+    private static final String PRESETS_DIR = "/presets";
 
     private final String displayName;
     private final String fileName;

@@ -1,5 +1,7 @@
 package lifegame.model;
 
+import lifegame.Main;
+
 import javax.swing.*;
 import java.io.*;
 import java.util.ArrayDeque;
@@ -68,9 +70,13 @@ public class GameModel {
     }
 
     public void loadState(File file) {
-        FileInputStream fileInputStream = null;
+        InputStream fileInputStream = null;
         try {
-            fileInputStream = new FileInputStream(file);
+            if(file.getPath().startsWith("/presets")){
+                fileInputStream = getClass().getResourceAsStream(file.getPath().replace("\\", "/"));
+            }else {
+                fileInputStream = new FileInputStream(file);
+            }
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
             boardState.readExternal(objectInputStream);
             objectInputStream.close();

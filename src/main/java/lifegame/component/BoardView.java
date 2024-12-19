@@ -100,6 +100,7 @@ public class BoardView extends JPanel{
                 loadToBuffer();
             }
         });
+        this.repaint();
     }
 
     public BoardView(int cellSize) {
