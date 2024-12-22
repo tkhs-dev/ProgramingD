@@ -98,9 +98,9 @@ public class BoardView extends JPanel{
             public void componentResized(ComponentEvent e) {
                 updateBoardSize();
                 loadToBuffer();
+                repaint();
             }
         });
-        this.repaint();
     }
 
     public BoardView(int cellSize) {
