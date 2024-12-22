@@ -94,6 +94,7 @@ public class MainViewModel {
         JFileChooser fileChooser = new JFileChooser();
         FileFilter filter = new FileNameExtensionFilter("盤面ファイル", "lg");
         fileChooser.addChoosableFileFilter(filter);
+        fileChooser.setAcceptAllFileFilterUsed(false);
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             gameModel.saveState(fileChooser.getSelectedFile());
         }
